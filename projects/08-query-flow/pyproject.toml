@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "query-flow"
+version = "1.0.0"
+description = "Explainable Retrieval + Query Orchestration Engine"
+requires-python = ">=3.9"
+dependencies = [
+  "numpy>=1.24.0",
+  "PyYAML>=6.0.0",
+]
+
+[project.optional-dependencies]
+yaml = [
+  "PyYAML>=6.0.0",
+]
+retrieval = [
+  "faiss-cpu>=1.7.0",
+  "rank-bm25>=0.2.2",
+  "openai>=1.0.0",
+]
+benchmark = [
+  "pandas>=1.5.0",
+]
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+include = ["query_flow*"]
