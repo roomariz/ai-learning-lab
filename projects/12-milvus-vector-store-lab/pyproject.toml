@@ -1,0 +1,29 @@
+[project]
+name = "tracerag"
+version = "0.1.0"
+description = "A traceable, citation-first document Q&A system"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pymilvus>=2.4.0",
+    "requests>=2.31.0",
+    "numpy>=1.24.0",
+    "pypdf>=3.0.0",
+]
+
+[project.scripts]
+tracerag = "tracerag.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "uv>=0.1.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tracerag*"]
