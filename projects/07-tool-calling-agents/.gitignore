@@ -1,0 +1,33 @@
+# Python
+.venv/
+.uv/
+.uvx/
+*.pyc
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+
+# Outputs & logs
+outputs/
+*.log
+.npm-cache/
+
+# Databases
+*.db
+checkpoints.db
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,42 @@
+[project]
+name = "07-tool-calling-agents"
+version = "0.1.0"
+description = "LLM agents with tool calling, memory checkpointing, and evaluation"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "langchain-core>=0.2.0",
+    "langchain-ollama>=0.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.4",
+    "mypy>=1.10",
+]
+agents = [
+    "langgraph>=0.2.0",
+    "langgraph-checkpoint-sqlite>=3.0.0",
+]
+eval = [
+    "datasets>=2.18",
+    "ragas>=0.1",
+    "sentence-transformers>=2.4",
+    "chromadb>=0.4",
+]
+all = [
+    "langgraph>=0.2.0",
+    "langgraph-checkpoint-sqlite>=3.0.0",
+    "datasets>=2.18",
+    "ragas>=0.1",
+    "sentence-transformers>=2.4",
+    "chromadb>=0.4",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0",
+    "ruff>=0.4",
+    "mypy>=1.10",
+]
