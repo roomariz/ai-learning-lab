@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+coverage/
+generated/
+*.tsbuildinfo
+*.tgz
+
+# Local environment
+.env
+
+# Tooling cache
+.npm-cache/
+
+# OS / logs
+.DS_Store
+*.log
