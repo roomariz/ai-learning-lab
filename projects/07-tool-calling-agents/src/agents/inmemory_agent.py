@@ -1,3 +1,14 @@
+"""
+In-memory agent implementation.
+
+This module creates an LLM agent that can:
+- call registered tools
+- maintain conversation state in runtime memory
+- support evaluation scenarios
+
+Use this for stateless sessions or when persistence is not needed.
+"""
+
 import warnings
 
 from langchain_core._api.deprecation import LangChainPendingDeprecationWarning
@@ -7,13 +18,16 @@ warnings.filterwarnings("ignore", category=UserWarning, module="langgraph.checkp
 
 from langchain.agents import create_agent
 from langchain_ollama import ChatOllama
-from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.checkpoint.memory import MemorySaver
 
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src.tools.tools import get_weather, calculate
+from src.tools.tool_registry import get_weather, calculate
 
+DEFAULT_MODEL = "llama3.1:latest"
+DETERMINISTIC_TEMPERATURE = 0
+DEFAULT_THREAD_ID = "conversation-1"
 
 SYSTEM_PROMPT = r"""You are a helpful assistant.
 
@@ -26,9 +40,30 @@ SYSTEM_PROMPT = r"""You are a helpful assistant.
 - Always respond to the user's actual question."""
 
 
-def create_inmemory_agent(model_name: str = "llama3.1:latest", temperature: int = 0):
+def create_inmemory_agent(
+    model_name: str = DEFAULT_MODEL,
+    temperature: int = DETERMINISTIC_TEMPERATURE,
+):
+    """
+    Create an agent with in-memory checkpoint storage.
+
+    The agent stores conversation checkpoints in memory (RAM) for the
+    duration of the process. Use this for short-lived sessions or
+    when persistence is not required.
+
+    Args:
+        model_name:
+            Name of the LLM model to use (e.g., "llama3.1:latest").
+        temperature:
+            Sampling temperature (0 for deterministic output).
+
+    Returns:
+        Configured LangGraph agent instance.
+    """
     model = ChatOllama(model=model_name, temperature=temperature)
-    checkpointer = InMemorySaver()
+
+    # In-memory checkpointer persists state only within current process.
+    checkpointer = MemorySaver()
 
     agent = create_agent(
         model=model,
@@ -40,9 +75,15 @@ def create_inmemory_agent(model_name: str = "llama3.1:latest", temperature: int 
     return agent
 
 
-def run_inmemory_demo():
+def run_inmemory_demo() -> None:
+    """
+    Run an interactive demo of the in-memory agent.
+
+    Provides a console interface where users can chat with the agent.
+    Memory is cleared when the process exits.
+    """
     agent = create_inmemory_agent()
-    config = {"configurable": {"thread_id": "conversation-1"}}
+    config = {"configurable": {"thread_id": DEFAULT_THREAD_ID}}
 
     print("InMemory Agent - Type 'exit' or 'quit' to stop\n")
 

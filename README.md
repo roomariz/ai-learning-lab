@@ -1,347 +1,80 @@
 # AI Learning Lab
 
-A clean way to manage this is to treat it like a serious engineering portfolio, not a dumping ground.
+A monorepo for hands-on AI/ML engineering learning projects.
 
-Given you are learning AI through hands-on open-source work (RAG, embeddings, interview app, etc.), I would structure it as a mono-repository with strong conventions.
-
-Recommended structure:
+## Current Structure
 
 ```
 ai-learning-lab/
-│
-├── README.md
-├── ROADMAP.md
-├── PROJECT_INDEX.md
-├── requirements/
-│   ├── common.txt
-│   ├── rag.txt
-│   ├── agents.txt
-│   └── llm-apps.txt
-│
-├── docs/
-│   ├── architecture/
-│   ├── learning-notes/
-│   ├── prompts/
-│   └── diagrams/
-│
-├── templates/
-│   ├── project-template/
-│   ├── experiment-template/
-│   └── notebook-template.ipynb
-│
-├── shared/
-│   ├── utils/
-│   ├── config/
-│   ├── logging/
-│   ├── evaluation/
-│   └── datasets/
-│
 ├── projects/
-│   ├── 01-rag-retrieval-lab/
-│   ├── 02-embedding-visualisation/
-│   ├── 03-ai-interview-coach/
-│   ├── 04-agentic-workflows/
-│   ├── 05-fine-tuning-experiments/
-│   └── 06-llm-evals/
-│
-├── notebooks/
-│   ├── experiments/
-│   └── research/
-│
-├── tests/
-│
-├── .env.example
-├── .gitignore
-├── docker-compose.yml
-└── LICENSE
-```
-
-Management strategy:
-
-1. Separate learning by domain
-
-Do not mix everything randomly.
-
-Example:
-
-* `RAG`
-* `Agents`
-* `Prompt Engineering`
-* `LLM Evaluations`
-* `Fine-tuning`
-* `AI Apps`
-* `MLOps`
-
-This makes growth manageable.
-
----
-
-2. Every project should have the same internal structure
-
-Example:
-
-```
-01-rag-retrieval-lab/
+│   ├── 01-rag-retrieval-lab/     # Placeholder (not started)
+│   └── 07-tool-calling-agents/  # Active project
 ├── README.md
-├── src/
-├── notebooks/
-├── tests/
-├── data/
-├── outputs/
-├── prompts/
-├── configs/
-└── requirements.txt
+└── .gitignore
 ```
 
-Consistency matters.
+## Projects
 
----
+| Project | Topic | Status |
+|---------|-------|--------|
+| 01-rag-retrieval-lab | RAG & Retrieval | Not Started |
+| 07-tool-calling-agents | Tool Calling & Agents | In Progress |
 
-3. Create a project index
+## Active Project: 07-tool Calling Agents
 
-`PROJECT_INDEX.md`
+Building LLM agents with:
+- Tool/function calling
+- Agent orchestration
+- Checkpoint memory (in-memory & SQLite)
+- Deterministic & LLM-as-judge evaluation
 
-Example:
+### Concepts Covered
+- function/tool calling
+- agent orchestration
+- checkpoint memory
+- SQLite persistence
+- deterministic evaluation
+- LLM-as-judge evaluation
 
-```markdown
-# AI Learning Projects
+### Implementations
+- **Weather Agent** - basic tool definition and invocation
+- **Calculator Agent** - mathematical expression evaluator
+- **Medical Routing Agent** - multi-tool query routing
+- **Doc QA Agent** - document-based Q&A with retrieval
 
-| Project | Topic | Status | Stack | Notes |
-|--------|------|--------|-------|-------|
-| RAG Retrieval Lab | Retrieval | Complete | Python, OpenRouter | semantic search |
-| Interview Coach | LLM App | In Progress | Streamlit, Python | adaptive interviews |
-| Agent Workflow | Agents | Planned | LangGraph | orchestration |
-```
-
-This becomes your dashboard.
-
----
-
-4. Use Git branches properly
-
-Simple model:
-
-```
-main        -> stable working code
-dev         -> integration branch
-feature/*   -> experiments
-```
-
-Example:
+### Setup
 
 ```bash
-feature/rag-faiss
-feature/langgraph-agents
-feature/evals-framework
+cd projects/07-tool-calling-agents
+uv sync
 ```
 
-Never experiment directly in `main`.
-
----
-
-5. Environment management
-
-AI projects break because dependencies clash.
-
-Use:
+### Usage
 
 ```bash
-uv
+cd projects/07-tool-calling-agents
+
+# Install dependencies
+uv sync
+
+# Import test (verifies modules load)
+python -c "from src.agents.inmemory_agent import create_inmemory_agent; print('OK')"
+python -c "from src.agents.sqlite_agent import create_sqlite_agent; print('OK')"
+
+# Run interactive agent (requires Ollama)
+python -m src.agents.inmemory_agent
+
+# Run evaluation (requires model API)
+python -m src.evaluation.tool_calling_evaluation
 ```
 
-or
+## Roadmap
 
-```bash
-poetry
-```
+- [ ] 01-rag-retrieval-lab
+- [x] 07-tool-calling-agents
 
-instead of raw pip.
+## Notes
 
-Example:
-
-```bash
-uv init
-uv venv
-uv add openai pandas numpy scikit-learn
-```
-
----
-
-6. Secrets management
-
-Never commit:
-
-```
-API keys
-.env
-tokens
-credentials
-```
-
-Use:
-
-`.env.example`
-
-Example:
-
-```env
-OPENROUTER_API_KEY=
-OPENAI_API_KEY=
-HUGGINGFACE_TOKEN=
-```
-
----
-
-7. Document what you learned
-
-This is the biggest differentiator.
-
-Inside:
-
-```
-docs/learning-notes/
-```
-
-Example:
-
-```markdown
-rag-vs-finetuning.md
-embedding-similarity.md
-vector-db-comparison.md
-agent-memory-patterns.md
-```
-
-This turns your repo into a knowledge base.
-
----
-
-8. Separate reusable code
-
-If you keep rewriting:
-
-* embedding utils
-* chunking logic
-* evaluation metrics
-* prompt helpers
-
-move them into:
-
-```
-shared/
-```
-
----
-
-9. CI/CD from day one
-
-Add GitHub Actions:
-
-```
-lint
-tests
-formatting
-security scan
-```
-
-Example tools:
-
-* black
-* ruff
-* pytest
-* mypy
-* bandit
-
----
-
-10. Naming convention
-
-Bad:
-
-```
-test1
-newproject
-ai-final-final
-```
-
-Good:
-
-```
-01-rag-retrieval-lab
-02-embedding-visualisation
-03-ai-interview-coach
-```
-
----
-
-11. Track roadmap
-
-`ROADMAP.md`
-
-Example:
-
-```markdown
-## Current Focus
-- RAG fundamentals
-- vector search
-- evaluation metrics
-
-## Next
-- LangGraph agents
-- MCP tools
-- memory systems
-
-## Later
-- fine tuning
-- multimodal systems
-- distributed inference
-```
-
----
-
-12. Public portfolio readiness
-
-For each project include:
-
-* problem statement
-* architecture diagram
-* setup instructions
-* screenshots
-* lessons learned
-* future improvements
-
-This makes the repo job-ready.
-
----
-
-Recommended GitHub repo names:
-
-Professional:
-
-* `ai-learning-lab`
-* `applied-ai-lab`
-* `llm-engineering-lab`
-* `ai-systems-playground`
-
-Portfolio style:
-
-* `build-with-ai`
-* `ai-engineering-journey`
-* `open-ai-projects`
-
-My recommendation:
-
-```
-ai-learning-lab
-```
-
-Clean and scalable.
-
-For your specific current work, first projects would be:
-
-```
-01-rag-retrieval-lab
-02-embedding-visualisation
-03-ai-interview-coach
-04-prompt-engineering-patterns
-05-llm-evaluation-suite
-```
+- Dependencies managed with `uv`
+- Each project maintains its own virtual environment
+- No shared/ reusable code yet (projects are isolated)
