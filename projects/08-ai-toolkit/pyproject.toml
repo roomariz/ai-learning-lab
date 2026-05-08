@@ -1,0 +1,24 @@
+[project]
+name = "tool-calling-ollama"
+version = "0.1.0"
+description = "A Python framework for building LLM applications with tool-calling capabilities using Ollama"
+requires-python = ">=3.8"
+dependencies = [
+    "ollama>=0.4.0",
+    "rich",
+    "jsonschema",
+    "requests",
+    "streamlit",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
