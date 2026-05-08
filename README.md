@@ -2,79 +2,68 @@
 
 A monorepo for hands-on AI/ML engineering learning projects.
 
-## Current Structure
-
-```
-ai-learning-lab/
-├── projects/
-│   ├── 01-rag-retrieval-lab/     # Placeholder (not started)
-│   └── 07-tool-calling-agents/  # Active project
-├── README.md
-└── .gitignore
-```
-
 ## Projects
 
-| Project | Topic | Status |
-|---------|-------|--------|
-| 01-rag-retrieval-lab | RAG & Retrieval | Not Started |
-| 07-tool-calling-agents | Tool Calling & Agents | In Progress |
+| # | Project | Topic | Status |
+|---|---------|-------|--------|
+| 01 | 01-rag-retrieval-lab | Retrieval Systems | Not Started |
+| 02 | 02-tool-calling-agents | Agent Tool Calling | Evaluating (75% → 90% target) |
+| 03 | 03-query-flow | Query Orchestration | Implemented |
+| 04 | 04-ragas-evaluation | Evaluation & Benchmarking | Benchmark Baseline Complete |
+| 05 | 05-ai-dev-server | AI Developer Tooling | Prototype Complete |
+| 06 | 06-rag-engineering-lab | RAG Pipelines | Implemented |
+| 07 | 07-milvus-vector-store-lab | Vector Databases | Implemented |
 
-## Active Project: 07-tool Calling Agents
+## Project Summaries
 
-Building LLM agents with:
-- Tool/function calling
-- Agent orchestration
-- Checkpoint memory (in-memory & SQLite)
-- Deterministic & LLM-as-judge evaluation
+### 01-rag-retrieval-lab
+Placeholder for retrieval systems learning. (Not started)
 
-### Concepts Covered
-- function/tool calling
-- agent orchestration
-- checkpoint memory
-- SQLite persistence
-- deterministic evaluation
-- LLM-as-judge evaluation
+### 02-tool-calling-agents
+Building LLM agents with tool calling, memory (in-memory & SQLite), and evaluation (deterministic & LLM-as-judge).
 
-### Implementations
-- **Weather Agent** - basic tool definition and invocation
-- **Calculator Agent** - mathematical expression evaluator
-- **Medical Routing Agent** - multi-tool query routing
-- **Doc QA Agent** - document-based Q&A with retrieval
+**Implementations:** Weather Agent, Calculator Agent, Medical Routing Agent, Doc QA Agent
 
-### Setup
+**Status:** Baseline 75% tool accuracy, targeting >90%
+
+### 03-query-flow
+Explainable query orchestration engine. Deterministic filtering followed by similarity-based ranking with layered, auditable explanations.
+
+**Features:** Hybrid retrieval (dense + BM25), rule-based filtering, metadata reasoning, per-result explainability
+
+### 04-ragas-evaluation
+RAG evaluation & benchmarking toolkit with Qdrant vector store and Ollama for local LLM inference.
+
+**Features:** RAGAs evaluation (faithfulness, answer relevancy, context precision/recall), chunking quality benchmarks, Streamlit dashboard
+
+### 05-ai-dev-server
+AI developer tooling - CLI tool that generates, validates, runs, and hot-reloads Express.js backends from natural language prompts.
+
+**Features:** Multi-file project generation, strict output validation, iterative refinement, watch/restart
+
+### 06-rag-engineering-lab
+RAG pipelines with LangChain, LangGraph, and Ollama.
+
+**Features:** Multi-format loading (HTML/PDF/CSV), configurable chunking, local LLM inference, LangSmith tracing
+
+### 07-milvus-vector-store-lab
+Vector databases - traceable, citation-first document Q&A system with sentence-level precision.
+
+**Features:** Sentence-level retrieval, source traceability (page/section), verbatim citations, minimal context
+
+## Setup
+
+Each project is independent with its own dependencies:
 
 ```bash
-cd projects/07-tool-calling-agents
-uv sync
+cd projects/<project-name>
+# Python projects: uv sync
+# Node projects: npm install
 ```
 
-### Usage
+## Dependencies
 
-```bash
-cd projects/07-tool-calling-agents
+- **Python projects**: managed with `uv`
+- **Node projects**: use `npm`
 
-# Install dependencies
-uv sync
-
-# Import test (verifies modules load)
-python -c "from src.agents.inmemory_agent import create_inmemory_agent; print('OK')"
-python -c "from src.agents.sqlite_agent import create_sqlite_agent; print('OK')"
-
-# Run interactive agent (requires Ollama)
-python -m src.agents.inmemory_agent
-
-# Run evaluation (requires model API)
-python -m src.evaluation.tool_calling_evaluation
-```
-
-## Roadmap
-
-- [ ] 01-rag-retrieval-lab
-- [x] 07-tool-calling-agents
-
-## Notes
-
-- Dependencies managed with `uv`
-- Each project maintains its own virtual environment
-- No shared/ reusable code yet (projects are isolated)
+Each project maintains its own virtual environment; no shared code yet.
