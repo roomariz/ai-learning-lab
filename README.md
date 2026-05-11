@@ -13,6 +13,7 @@ A monorepo for hands-on AI/ML engineering learning projects.
 | 05 | 05-ai-dev-server | AI Developer Tooling | Prototype Complete |
 | 06 | 06-rag-engineering-lab | RAG Pipelines | Implemented |
 | 07 | 07-milvus-vector-store-lab | Vector Databases | Implemented |
+| 09 | 09-mcp-cli-project | MCP CLI + local LLM chat | In Progress |
 
 ## Project Summaries
 
@@ -50,6 +51,11 @@ RAG pipelines with LangChain, LangGraph, and Ollama.
 Vector databases - traceable, citation-first document Q&A system with sentence-level precision.
 
 **Features:** Sentence-level retrieval, source traceability (page/section), verbatim citations, minimal context
+
+### 09-mcp-cli-project
+Command-line chat client that connects to a local Ollama model and enriches responses with MCP tools, prompts, and document resources.
+
+**Features:** Prompt-toolkit CLI, `@doc_id` context injection, MCP prompt execution, document resources, Ollama chat wrapper
 
 ## Setup
 
