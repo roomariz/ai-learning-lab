@@ -13,7 +13,8 @@ A monorepo for hands-on AI/ML engineering learning projects.
 | 06 | 06-rag-engineering-lab | RAG Pipelines | Implemented | - |
 | 07 | 07-milvus-vector-store-lab | Vector Databases | Implemented | - |
 | 08 | 08-ai-toolkit | Tool-Calling Framework | Implemented | https://ollama-toolbox-demo.streamlit.app/ |
-| 09 | 09-mcp-cli-project | MCP CLI + local LLM chat | In Progress | - |
+| 09 | 09-mcp-cli-project | MCP CLI + local LLM chat | Implemented | - |
+| 10 | 10-mcp-lab | MCP + LangChain integration | Implemented | - |
 
 ## Project Summaries
 
@@ -58,6 +59,11 @@ Tool-calling framework for Ollama with CLI and Streamlit interfaces, tool chaini
 Command-line chat client that connects to a local Ollama model and enriches responses with MCP tools, prompts, and document resources.
 
 **Features:** Prompt-toolkit CLI, `@doc_id` context injection, MCP prompt execution, document resources, Ollama chat wrapper
+
+### 10-mcp-lab
+Wires a LangChain agent to a simple MCP math server. Demonstrates MCP tool calling with Ollama.
+
+**Features:** FastMCP server (add, multiply), LangChain MCP client, automatic model selection, iteration safety cap
 
 ## Setup
 
