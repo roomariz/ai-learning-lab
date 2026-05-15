@@ -197,4 +197,4 @@ npm install
 
 * Python projects use `uv` and declare dependencies in `pyproject.toml`.
 * Node.js projects use `npm` and declare dependencies in `package.json`.
-* Project-specific environments and lockfiles live inside each project folder.
+* Some projects include project-specific environment files or lockfiles.
