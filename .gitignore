@@ -1,2 +1,39 @@
-README-sample.md
+# Environment
+.env
+.env.*
+!.env.example
+!.env.template
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Node
+node_modules/
+dist/
+build/
+coverage/
 .npm-cache/
+
+# Logs
+*.log
+logs/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Project-specific
+README-sample.md
+generated/
