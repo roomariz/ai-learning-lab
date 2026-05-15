@@ -1,0 +1,15 @@
+# Python
+.env
+.venv/
+__pycache__/
+*.pyc
+.python-version
+
+# Logs (keep .gitkeep)
+logs/*.jsonl
+logs/*.log
+logs/agent-trace.jsonl.*
+
+# Misc
+.npm-cache/
+README-sample.md
