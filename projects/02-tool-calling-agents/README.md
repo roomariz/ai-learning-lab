@@ -1,4 +1,4 @@
-# 07 Tool Calling Agents
+# Tool Calling Agents
 
 ## Overview
 
@@ -65,7 +65,7 @@ Document-based question answering with retrieval and evaluation.
 ## Project Structure
 
 ```
-07-tool-calling-agents/
+tool-calling-agents/
 ├── src/
 │   ├── agents/         # Agent implementations
 │   ├── tools/          # Tool definitions

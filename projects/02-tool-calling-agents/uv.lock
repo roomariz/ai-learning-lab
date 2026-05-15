@@ -17,7 +17,7 @@ resolution-markers = [
 ]
 
 [[package]]
-name = "07-tool-calling-agents"
+name = "tool-calling-agents"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
