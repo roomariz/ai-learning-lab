@@ -3,16 +3,35 @@
 .env.*
 !.env.example
 !.env.template
+.python-version
+.secret
+.secrets
+*.secret
+*.secrets
 
 # Python
 .venv/
 venv/
+env/
+ENV/
+venv.bak/
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
+.coverage
+.coverage.*
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.tox/
+.nox/
+.hypothesis/
 .ipynb_checkpoints/
+htmlcov/
+site/
+pip-wheel-metadata/
+*.egg-info/
 
 # Node
 node_modules/
@@ -20,10 +39,18 @@ dist/
 build/
 coverage/
 .npm-cache/
+.parcel-cache/
+.next/
+.nuxt/
+.svelte-kit/
+.turbo/
 
 # Logs
 *.log
 logs/
+*.log.*
+*.out
+*.err
 
 # Streamlit
 .streamlit/secrets.toml
@@ -33,7 +60,16 @@ logs/
 Thumbs.db
 .vscode/
 .idea/
+.fleet/
+.history/
+.cursor/
+.swp
+.swo
 
 # Project-specific
 README-sample.md
 generated/
+output/
+outputs/
+tmp/
+temp/

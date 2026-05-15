@@ -2,6 +2,13 @@
 
 A monorepo for hands-on AI and machine learning engineering projects.
 
+## Featured Projects
+
+- `03-query-flow`: explainable query orchestration with deterministic filtering, similarity-based ranking and a live Streamlit demo.
+- `05-ai-dev-server`: AI developer tooling that generates, validates, runs and hot-reloads Express.js backends from natural language prompts.
+- `07-milvus-vector-store-lab`: citation-first document question answering with sentence-level retrieval and structured source traceability.
+- `08-ai-toolkit`: Ollama tool-calling framework with CLI and Streamlit interfaces, async execution, retry logic and structured logging.
+
 ## Projects
 
 | # | Project | Topic | Status | Live Demo |

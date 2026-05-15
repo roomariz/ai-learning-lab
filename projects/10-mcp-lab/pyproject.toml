@@ -1,7 +1,7 @@
 [project]
 name = "10-mcp-lab"
 version = "0.1.0"
-description = "Add your description here"
+description = "LangChain MCP lab with Ollama model selection and a simple math server."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
