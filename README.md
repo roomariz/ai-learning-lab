@@ -175,7 +175,7 @@ LangChain agent wired to a simple MCP math server, demonstrating MCP tool callin
 
 ## Setup
 
-Each project is independent and maintains its own dependencies.
+Each project has its own local setup.
 
 ```bash
 cd projects/<project-name>
@@ -195,7 +195,6 @@ npm install
 
 ## Dependencies
 
-* Python projects are managed with `uv`.
-* Node.js projects use `npm`.
-* Each project maintains its own virtual environment.
-* There is currently no shared code between projects.
+* Python projects use `uv` and declare dependencies in `pyproject.toml`.
+* Node.js projects use `npm` and declare dependencies in `package.json`.
+* Project-specific environments and lockfiles live inside each project folder.
