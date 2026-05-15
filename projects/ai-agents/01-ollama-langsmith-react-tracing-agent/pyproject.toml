@@ -1,7 +1,7 @@
 [project]
 name = "ollama-langsmith-react-tracing-agent"
 version = "0.1.0"
-description = "Add your description here"
+description = "LangChain ReAct agent using Ollama with LangSmith tracing."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

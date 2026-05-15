@@ -1,7 +1,7 @@
 [project]
 name = "ollama-local-agent-tracing"
 version = "0.1.0"
-description = "Add your description here"
+description = "Local Ollama agent with LangGraph tool use and structured JSONL tracing."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
