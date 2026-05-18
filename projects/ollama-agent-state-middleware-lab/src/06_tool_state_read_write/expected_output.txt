@@ -1,0 +1,117 @@
+06 Tool State Read Write
+========================
+
+[config] Project root: ...
+[config] .env path: ...
+[config] .env loaded: True
+[config] MODEL_PROVIDER: ollama
+[config] OLLAMA_MODEL: qwen2.5-coder:7b
+[config] OLLAMA_BASE_URL: http://localhost:11434
+
+INITIAL STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence"
+  ],
+  "current_topic": "tool_state_read_write",
+  "last_action": "started_tool_state_lab",
+  "notes": []
+}
+
+Step 1: tool reads from state
+=============================
+
+USER:
+Use a tool to read my current learning status.
+
+TOOL RESULT:
+Learner: Muhammad
+Preferred language: Python
+Completed topics: custom_state, state_persistence
+Current topic: tool_state_read_write
+
+ASSISTANT:
+The assistant should summarise the tool result.
+The exact wording may vary by local model.
+
+Step 2: tool writes a note to state
+===================================
+
+USER:
+Add a note that tools can update structured state.
+
+WRITTEN NOTE:
+Tools can read from and write to structured agent state.
+
+STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence"
+  ],
+  "current_topic": "tool_state_read_write",
+  "last_action": "tool_added_learning_note",
+  "notes": [
+    "Tools can read from and write to structured agent state."
+  ]
+}
+
+Step 3: tool updates progress in state
+======================================
+
+USER:
+Mark the tool state read/write lab as complete.
+
+STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write"
+  ],
+  "current_topic": "toolruntime_solution",
+  "last_action": "tool_completed_topic",
+  "notes": [
+    "Tools can read from and write to structured agent state."
+  ]
+}
+
+Step 4: deterministic summary of updated state
+==============================================
+
+USER:
+Summarise what changed after the tools ran.
+
+SUMMARY:
+The tools added this note: Tools can read from and write to structured agent state.
+The completed topic is now: tool_state_read_write
+The current topic is now: toolruntime_solution
+The last action is now: tool_completed_topic
+
+FINAL STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write"
+  ],
+  "current_topic": "toolruntime_solution",
+  "last_action": "tool_completed_topic",
+  "notes": [
+    "Tools can read from and write to structured agent state."
+  ]
+}
+
+Conclusion
+==========
+
+Tools often need access to agent state. A read tool can inspect state, while a write tool can update state after an action. This lab passes state manually so the data flow is easy to see.
