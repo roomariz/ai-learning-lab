@@ -1,0 +1,147 @@
+07 Tool State Challenge
+=======================
+
+INITIAL STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write"
+  ],
+  "current_topic": "tool_state_challenge",
+  "last_action": "started_tool_state_challenge",
+  "notes": [],
+  "tool_call_count": 0,
+  "authorised_tools": [
+    "read_learning_status",
+    "add_learning_note"
+  ]
+}
+
+Step 1: authorised tool reads state
+===================================
+
+USER:
+Read my learning status with an authorised tool.
+
+TOOL RESULT:
+Learner: Muhammad
+Preferred language: Python
+Completed topics: custom_state, state_persistence, tool_state_read_write
+Current topic: tool_state_challenge
+Tool call count: 1
+
+STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write"
+  ],
+  "current_topic": "tool_state_challenge",
+  "last_action": "tool_read_learning_status",
+  "notes": [],
+  "tool_call_count": 1,
+  "authorised_tools": [
+    "read_learning_status",
+    "add_learning_note"
+  ]
+}
+
+Step 2: authorised tool writes state
+====================================
+
+USER:
+Add a note with an authorised tool.
+
+WRITTEN NOTE:
+Manual state passing works, but every tool must receive and update state carefully.
+
+STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write"
+  ],
+  "current_topic": "tool_state_challenge",
+  "last_action": "tool_added_learning_note",
+  "notes": [
+    "Manual state passing works, but every tool must receive and update state carefully."
+  ],
+  "tool_call_count": 2,
+  "authorised_tools": [
+    "read_learning_status",
+    "add_learning_note"
+  ]
+}
+
+Step 3: unauthorised tool is blocked
+====================================
+
+USER:
+Try to complete the current topic with an unauthorised tool.
+
+STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write"
+  ],
+  "current_topic": "tool_state_challenge",
+  "last_action": "blocked_tool:complete_topic",
+  "notes": [
+    "Manual state passing works, but every tool must receive and update state carefully."
+  ],
+  "tool_call_count": 2,
+  "authorised_tools": [
+    "read_learning_status",
+    "add_learning_note"
+  ]
+}
+
+Challenge summary
+=================
+
+SUMMARY:
+Manual state passing creates repeated responsibilities:
+1. Each tool must receive the state argument.
+2. Each tool must remember to check authorisation.
+3. Each tool must remember to update shared bookkeeping.
+4. Each tool can accidentally mutate state in inconsistent ways.
+5. As tools grow, this pattern becomes noisy and fragile.
+
+FINAL STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write"
+  ],
+  "current_topic": "tool_state_challenge",
+  "last_action": "blocked_tool:complete_topic",
+  "notes": [
+    "Manual state passing works, but every tool must receive and update state carefully."
+  ],
+  "tool_call_count": 2,
+  "authorised_tools": [
+    "read_learning_status",
+    "add_learning_note"
+  ]
+}
+
+Conclusion
+==========
+
+Manual state passing is useful for learning, but it does not scale well. The next lab introduces a runtime-style object so tools can access state through a cleaner interface.
