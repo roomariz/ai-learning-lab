@@ -1,0 +1,33 @@
+01 Messages-Only Memory
+=======================
+
+[config] Project root: ...
+[config] .env path: ...
+[config] .env loaded: True
+[config] OLLAMA_MODEL: qwen2.5-coder:7b
+[config] OLLAMA_BASE_URL: http://localhost:11434
+
+Call 1: user shares a preference
+================================
+
+USER:
+My preferred programming language is Python. Please remember that.
+
+ASSISTANT:
+The assistant should briefly acknowledge the preference.
+The exact wording may vary by local model.
+
+Call 2: fresh call without previous messages
+============================================
+
+USER:
+What is my preferred programming language?
+
+ASSISTANT:
+The assistant should say, or imply, that it does not know the preference from the current call alone.
+The exact wording may vary by local model.
+
+Conclusion
+==========
+
+The second call does not include the first message. The model therefore has no reliable way to know the user's preference. This is the core limitation of messages-only memory.
