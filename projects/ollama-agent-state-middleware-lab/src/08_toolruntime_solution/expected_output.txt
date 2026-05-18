@@ -1,0 +1,154 @@
+08 ToolRuntime Solution
+=======================
+
+INITIAL STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write"
+  ],
+  "current_topic": "toolruntime_solution",
+  "last_action": "started_toolruntime_solution",
+  "notes": [],
+  "tool_call_count": 0
+}
+
+RUNTIME CONTEXT:
+{
+  "user_id": "learner-001",
+  "role": "learner",
+  "authorised_tools": [
+    "read_learning_status",
+    "add_learning_note",
+    "complete_topic"
+  ]
+}
+
+Step 1: tool reads through runtime
+==================================
+
+USER:
+Use the runtime object to read my learning status.
+
+TOOL RESULT:
+User ID: learner-001
+Role: learner
+Learner: Muhammad
+Preferred language: Python
+Completed topics: custom_state, state_persistence, tool_state_read_write
+Current topic: toolruntime_solution
+Tool call count: 1
+
+STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write"
+  ],
+  "current_topic": "toolruntime_solution",
+  "last_action": "tool_read_learning_status",
+  "notes": [],
+  "tool_call_count": 1
+}
+
+Step 2: tool writes through runtime
+===================================
+
+USER:
+Use the runtime object to add a learning note.
+
+WRITTEN NOTE:
+ToolRuntime groups state and context behind one clean tool interface.
+
+STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write"
+  ],
+  "current_topic": "toolruntime_solution",
+  "last_action": "tool_added_learning_note",
+  "notes": [
+    "ToolRuntime groups state and context behind one clean tool interface."
+  ],
+  "tool_call_count": 2
+}
+
+Step 3: tool updates progress through runtime
+=============================================
+
+USER:
+Complete the ToolRuntime solution lab.
+
+STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution"
+  ],
+  "current_topic": "reading_state_in_tools",
+  "last_action": "tool_completed_topic",
+  "notes": [
+    "ToolRuntime groups state and context behind one clean tool interface."
+  ],
+  "tool_call_count": 3
+}
+
+Runtime summary
+===============
+
+SUMMARY:
+The runtime object gives tools one controlled interface:
+User ID: learner-001
+Role: learner
+Completed topic: toolruntime_solution
+Current topic: reading_state_in_tools
+Tool call count: 3
+Last action: tool_completed_topic
+
+FINAL STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution"
+  ],
+  "current_topic": "reading_state_in_tools",
+  "last_action": "tool_completed_topic",
+  "notes": [
+    "ToolRuntime groups state and context behind one clean tool interface."
+  ],
+  "tool_call_count": 3
+}
+
+CONTEXT:
+{
+  "user_id": "learner-001",
+  "role": "learner",
+  "authorised_tools": [
+    "read_learning_status",
+    "add_learning_note",
+    "complete_topic"
+  ]
+}
+
+Conclusion
+==========
+
+A runtime object reduces repetitive manual state passing. Tools can use one interface to read state, write state, check context, and record actions.
