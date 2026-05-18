@@ -114,6 +114,8 @@ OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 
 ## Run labs with uv
 
+Each lab has its own `README.md`, `main.py`, and `expected_output.txt`.
+
 Run one lab:
 
 ```bash
