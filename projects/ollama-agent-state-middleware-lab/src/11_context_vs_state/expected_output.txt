@@ -1,0 +1,208 @@
+11 Context vs State
+===================
+
+INITIAL CONTEXT:
+{
+  "user_id": "learner-001",
+  "role": "learner",
+  "tenant_id": "learning-lab",
+  "environment": "local",
+  "authorised_tools": [
+    "explain_context",
+    "explain_state",
+    "add_state_note"
+  ]
+}
+
+INITIAL STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution",
+    "reading_state_in_tools",
+    "writing_state_from_tools"
+  ],
+  "current_topic": "context_vs_state",
+  "last_action": "started_context_vs_state_lab",
+  "notes": [
+    "State changes during the agent run."
+  ],
+  "tool_call_count": 0
+}
+
+Step 1: tool reads context
+==========================
+
+USER:
+Explain the runtime context.
+
+TOOL RESULT:
+Context is stable information supplied to this run.
+User ID: learner-001
+Role: learner
+Tenant ID: learning-lab
+Environment: local
+
+CONTEXT:
+{
+  "user_id": "learner-001",
+  "role": "learner",
+  "tenant_id": "learning-lab",
+  "environment": "local",
+  "authorised_tools": [
+    "explain_context",
+    "explain_state",
+    "add_state_note"
+  ]
+}
+
+STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution",
+    "reading_state_in_tools",
+    "writing_state_from_tools"
+  ],
+  "current_topic": "context_vs_state",
+  "last_action": "tool_explained_context",
+  "notes": [
+    "State changes during the agent run."
+  ],
+  "tool_call_count": 1
+}
+
+Step 2: tool reads state
+========================
+
+USER:
+Explain the current state.
+
+TOOL RESULT:
+State is changing information tracked during the agent run.
+Learner: Muhammad
+Current topic: context_vs_state
+Completed topics count: 6
+Notes count: 1
+Tool call count: 2
+
+STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution",
+    "reading_state_in_tools",
+    "writing_state_from_tools"
+  ],
+  "current_topic": "context_vs_state",
+  "last_action": "tool_explained_state",
+  "notes": [
+    "State changes during the agent run."
+  ],
+  "tool_call_count": 2
+}
+
+Step 3: tool writes state, not context
+======================================
+
+USER:
+Add a note to state.
+
+TOOL RESULT:
+State note added: Context should stay stable while state may change.
+
+CONTEXT:
+{
+  "user_id": "learner-001",
+  "role": "learner",
+  "tenant_id": "learning-lab",
+  "environment": "local",
+  "authorised_tools": [
+    "explain_context",
+    "explain_state",
+    "add_state_note"
+  ]
+}
+
+STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution",
+    "reading_state_in_tools",
+    "writing_state_from_tools"
+  ],
+  "current_topic": "context_vs_state",
+  "last_action": "tool_added_state_note",
+  "notes": [
+    "State changes during the agent run.",
+    "Context should stay stable while state may change."
+  ],
+  "tool_call_count": 3
+}
+
+Context vs state summary
+========================
+
+SUMMARY:
+Context and state have different jobs:
+Context: stable run information, such as user_id, role, tenant_id, and environment.
+State: changing agent information, such as current_topic, notes, last_action, and tool_call_count.
+Context role remains: learner
+State last action is now: tool_added_state_note
+State notes count is now: 2
+
+FINAL CONTEXT:
+{
+  "user_id": "learner-001",
+  "role": "learner",
+  "tenant_id": "learning-lab",
+  "environment": "local",
+  "authorised_tools": [
+    "explain_context",
+    "explain_state",
+    "add_state_note"
+  ]
+}
+
+FINAL STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution",
+    "reading_state_in_tools",
+    "writing_state_from_tools"
+  ],
+  "current_topic": "context_vs_state",
+  "last_action": "tool_added_state_note",
+  "notes": [
+    "State changes during the agent run.",
+    "Context should stay stable while state may change."
+  ],
+  "tool_call_count": 3
+}
+
+Conclusion
+==========
+
+Context is stable information supplied to the run. State is information that changes as the agent works. Keeping them separate makes tools easier to reason about.
