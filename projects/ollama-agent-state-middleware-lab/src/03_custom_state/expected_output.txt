@@ -1,0 +1,39 @@
+03 Custom State
+===============
+
+[config] Project root: ...
+[config] .env path: ...
+[config] .env loaded: True
+[config] OLLAMA_MODEL: qwen2.5-coder:7b
+[config] OLLAMA_BASE_URL: http://localhost:11434
+
+Call 1: user shares learning profile
+====================================
+
+USER:
+My name is Muhammad. My preferred programming language is Python. I have completed the agent state intro lab. Now I want to study custom state.
+
+ASSISTANT:
+The assistant should briefly acknowledge that Muhammad completed the agent state intro lab and is moving to custom state.
+The exact wording may vary by local model.
+
+STATE:
+{'learner_name': 'Muhammad', 'preferred_language': 'Python', 'completed_topics': ['agent_state_intro'], 'current_topic': 'custom_state', 'last_action': 'updated_learning_profile'}
+
+Call 2: fresh call with custom state
+====================================
+
+USER:
+Summarise my current learning status.
+
+ASSISTANT:
+The assistant should summarise the learner's name, preferred language, completed topic, current topic, and last action from the custom state.
+The exact wording may vary by local model.
+
+STATE:
+{'learner_name': 'Muhammad', 'preferred_language': 'Python', 'completed_topics': ['agent_state_intro'], 'current_topic': 'custom_state', 'last_action': 'updated_learning_profile'}
+
+Conclusion
+==========
+
+Custom state lets the program track several structured facts at once. This is more useful than storing one isolated value. It gives the agent controlled access to the learner's profile, progress, current topic, and last action.
