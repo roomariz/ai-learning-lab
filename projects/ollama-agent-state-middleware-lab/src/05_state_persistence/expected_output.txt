@@ -1,0 +1,71 @@
+05 State Persistence
+====================
+[config] Project root: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab
+[config] .env path: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab\.env
+[config] .env loaded: True
+[config] MODEL_PROVIDER: ollama
+[config] OLLAMA_MODEL: qwen2.5-coder:7b
+[config] OLLAMA_BASE_URL: http://localhost:11434
+
+INITIAL STATE:
+{
+  "learner_name": null,
+  "preferred_language": null,
+  "completed_topics": [],
+  "current_topic": null,
+  "last_action": null
+}
+
+Step 1: update and save state
+=============================
+
+USER:
+I have completed the custom state lab. Now I want to learn state persistence.
+
+ASSISTANT:
+Great! Next, you should explore how to implement state persistence in your applications for better data management and user experience.
+
+SAVED STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state"
+  ],
+  "current_topic": "state_persistence",
+  "last_action": "saved_state_to_disk"
+}
+
+STATE FILE:
+data/state/learning_state.json
+
+Step 2: load state in a later step
+==================================
+
+USER:
+What did you load from persisted state?
+
+ASSISTANT:
+I loaded the following information from the persisted state:
+
+- learner_name: Muhammad
+- preferred_language: Python
+- completed_topics: ['custom_state']
+- current_topic: state_persistence
+- last_action: saved_state_to_disk
+
+LOADED STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state"
+  ],
+  "current_topic": "state_persistence",
+  "last_action": "saved_state_to_disk"
+}
+
+Conclusion
+==========
+
+State persistence lets the program save structured state outside the model call. A later step can load that state again instead of relying on message history.
