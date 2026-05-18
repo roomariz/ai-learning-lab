@@ -212,4 +212,3 @@ Conclusion
 ==========
 
 Production-ready agents need deterministic controls around the model. Validation, authorisation, error handling, and observable state changes make behaviour safer and easier to debug.
-PS D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab> 
