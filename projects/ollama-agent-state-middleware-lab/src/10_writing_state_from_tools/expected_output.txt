@@ -1,0 +1,188 @@
+10 Writing State from Tools
+===========================
+
+INITIAL STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution",
+    "reading_state_in_tools"
+  ],
+  "current_topic": "writing_state_from_tools",
+  "last_action": "started_writing_state_lab",
+  "notes": [
+    "Reading tools should inspect state without mutating it."
+  ],
+  "tool_call_count": 0
+}
+
+RUNTIME CONTEXT:
+{
+  "user_id": "learner-001",
+  "role": "learner",
+  "authorised_tools": [
+    "add_learning_note",
+    "complete_topic",
+    "set_next_topic"
+  ]
+}
+
+Step 1: tool writes a note
+==========================
+
+USER:
+Add a note about writing state from tools.
+
+TOOL RESULT:
+Note added: Writing tools should update state through controlled runtime methods.
+
+STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution",
+    "reading_state_in_tools"
+  ],
+  "current_topic": "writing_state_from_tools",
+  "last_action": "tool_added_learning_note",
+  "notes": [
+    "Reading tools should inspect state without mutating it.",
+    "Writing tools should update state through controlled runtime methods."
+  ],
+  "tool_call_count": 1
+}
+
+Step 2: tool completes topic
+============================
+
+USER:
+Complete the writing state from tools lab.
+
+TOOL RESULT:
+Completed writing_state_from_tools; next topic is context_vs_state.
+
+STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution",
+    "reading_state_in_tools",
+    "writing_state_from_tools"
+  ],
+  "current_topic": "context_vs_state",
+  "last_action": "tool_completed_topic",
+  "notes": [
+    "Reading tools should inspect state without mutating it.",
+    "Writing tools should update state through controlled runtime methods."
+  ],
+  "tool_call_count": 2
+}
+
+Step 3: tool sets next topic
+============================
+
+USER:
+Set the next topic to context versus state.
+
+TOOL RESULT:
+Current topic set to context_vs_state.
+
+STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution",
+    "reading_state_in_tools",
+    "writing_state_from_tools"
+  ],
+  "current_topic": "context_vs_state",
+  "last_action": "tool_set_next_topic",
+  "notes": [
+    "Reading tools should inspect state without mutating it.",
+    "Writing tools should update state through controlled runtime methods."
+  ],
+  "tool_call_count": 3
+}
+
+Step 4: unauthorised write is blocked
+=====================================
+
+USER:
+Try to delete all notes.
+
+TOOL RESULT:
+Tool blocked: delete_all_notes
+
+STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution",
+    "reading_state_in_tools",
+    "writing_state_from_tools"
+  ],
+  "current_topic": "context_vs_state",
+  "last_action": "blocked_tool:delete_all_notes",
+  "notes": [
+    "Reading tools should inspect state without mutating it.",
+    "Writing tools should update state through controlled runtime methods."
+  ],
+  "tool_call_count": 3
+}
+
+Write summary
+=============
+
+SUMMARY:
+Writing state from tools changed the agent state in controlled ways:
+Tool call count: 3
+Completed topic added: writing_state_from_tools
+Current topic: context_vs_state
+Last action: blocked_tool:delete_all_notes
+Notes count: 2
+
+FINAL STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution",
+    "reading_state_in_tools",
+    "writing_state_from_tools"
+  ],
+  "current_topic": "context_vs_state",
+  "last_action": "blocked_tool:delete_all_notes",
+  "notes": [
+    "Reading tools should inspect state without mutating it.",
+    "Writing tools should update state through controlled runtime methods."
+  ],
+  "tool_call_count": 3
+}
+
+Conclusion
+==========
+
+Writing tools intentionally change state. A runtime object gives the project one controlled place for common write operations such as adding notes, completing topics, and recording actions.
