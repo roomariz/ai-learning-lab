@@ -1,0 +1,238 @@
+13 Bug Tracker Agent with LangGraph
+====================================
+
+INITIAL CONTEXT:
+{
+  "user_id": "learner-001",
+  "role": "learner",
+  "environment": "local",
+  "authorised_tools": [
+    "list_bugs",
+    "create_bug",
+    "resolve_bug",
+    "reopen_bug"
+  ]
+}
+
+INITIAL STATE:
+{
+  "learner_name": "Muhammad",
+  "current_topic": "bug_tracker_agent_langgraph",
+  "completed_topics": [
+    "production_ready_agents",
+    "middleware_concept"
+  ],
+  "last_action": "started_bug_tracker_lab",
+  "notes": [],
+  "bugs": [],
+  "next_bug_id": 1
+}
+
+Step 1: list all bugs (empty)
+==============================
+
+USER:
+Show all current bugs.
+
+TOOL RESULT:
+No bugs reported.
+
+Step 2: create three bugs
+==========================
+
+USER:
+Report three bugs in the codebase.
+
+BUG-1:
+Created BUG-1: Login button does not respond [high]
+
+BUG-2:
+Created BUG-2: Dark mode icon misaligned [low]
+
+BUG-3:
+Created BUG-3: API timeout on large payloads [medium]
+
+BUG STATE:
+{
+  "learner_name": "Muhammad",
+  "current_topic": "bug_tracker_agent_langgraph",
+  "completed_topics": [
+    "production_ready_agents",
+    "middleware_concept"
+  ],
+  "last_action": "tool_created_bug:3",
+  "notes": [],
+  "bugs": [
+    {
+      "id": 1,
+      "title": "Login button does not respond",
+      "severity": "high",
+      "resolved": false
+    },
+    {
+      "id": 2,
+      "title": "Dark mode icon misaligned",
+      "severity": "low",
+      "resolved": false
+    },
+    {
+      "id": 3,
+      "title": "API timeout on large payloads",
+      "severity": "medium",
+      "resolved": false
+    }
+  ],
+  "next_bug_id": 4
+}
+
+Step 3: list bugs after creation
+=================================
+
+USER:
+List bugs after creation.
+
+TOOL RESULT:
+[BUG-1] [HIGH ] OPEN     | Login button does not respond
+[BUG-2] [LOW  ] OPEN     | Dark mode icon misaligned
+[BUG-3] [MED  ] OPEN     | API timeout on large payloads
+
+Step 4: resolve high-severity bug
+==================================
+
+USER:
+Mark the high-severity bug as resolved.
+
+TOOL RESULT:
+Resolved BUG-1: Login button does not respond
+
+BUG STATE:
+{
+  "learner_name": "Muhammad",
+  "current_topic": "bug_tracker_agent_langgraph",
+  "completed_topics": [
+    "production_ready_agents",
+    "middleware_concept"
+  ],
+  "last_action": "tool_resolved_bug:1",
+  "notes": [],
+  "bugs": [
+    {
+      "id": 1,
+      "title": "Login button does not respond",
+      "severity": "high",
+      "resolved": true
+    },
+    {
+      "id": 2,
+      "title": "Dark mode icon misaligned",
+      "severity": "low",
+      "resolved": false
+    },
+    {
+      "id": 3,
+      "title": "API timeout on large payloads",
+      "severity": "medium",
+      "resolved": false
+    }
+  ],
+  "next_bug_id": 4
+}
+
+Step 5: resolve already-resolved bug
+=====================================
+
+USER:
+Try to resolve an already resolved bug.
+
+TOOL RESULT:
+BUG-1 is already resolved.
+
+Step 6: attempt to reopen an already-open bug
+================================================
+
+USER:
+Reopen the dark mode bug.
+
+TOOL RESULT:
+BUG-2 is already open.
+
+BUG STATE:
+{
+  "learner_name": "Muhammad",
+  "current_topic": "bug_tracker_agent_langgraph",
+  "completed_topics": [
+    "production_ready_agents",
+    "middleware_concept"
+  ],
+  "last_action": "tool_reopen_already:2",
+  "notes": [],
+  "bugs": [
+    {
+      "id": 1,
+      "title": "Login button does not respond",
+      "severity": "high",
+      "resolved": true
+    },
+    {
+      "id": 2,
+      "title": "Dark mode icon misaligned",
+      "severity": "low",
+      "resolved": false
+    },
+    {
+      "id": 3,
+      "title": "API timeout on large payloads",
+      "severity": "medium",
+      "resolved": false
+    }
+  ],
+  "next_bug_id": 4
+}
+
+Bug tracker summary
+===================
+
+SUMMARY:
+Bug tracking keeps a structured record of issues and their resolution.
+Total bugs: 3
+Open: 2
+Resolved: 1
+Next bug ID: 4
+
+FINAL STATE:
+{
+  "learner_name": "Muhammad",
+  "current_topic": "bug_tracker_agent_langgraph",
+  "completed_topics": [
+    "production_ready_agents",
+    "middleware_concept"
+  ],
+  "last_action": "tool_reopen_already:2",
+  "notes": [],
+  "bugs": [
+    {
+      "id": 1,
+      "title": "Login button does not respond",
+      "severity": "high",
+      "resolved": true
+    },
+    {
+      "id": 2,
+      "title": "Dark mode icon misaligned",
+      "severity": "low",
+      "resolved": false
+    },
+    {
+      "id": 3,
+      "title": "API timeout on large payloads",
+      "severity": "medium",
+      "resolved": false
+    }
+  ],
+  "next_bug_id": 4
+}
+
+Conclusion
+==========
+
+A bug tracker agent keeps bugs in state so they persist across turns. State mutation through tools like create, resolve, and reopen mirrors real engineering workflows.
