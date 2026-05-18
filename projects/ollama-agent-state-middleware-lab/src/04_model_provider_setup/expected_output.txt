@@ -1,0 +1,24 @@
+04 Model Provider Setup
+=======================
+
+[config] Project root: ...
+[config] .env path: ...
+[config] .env loaded: True
+[config] MODEL_PROVIDER: ollama
+[config] OLLAMA_MODEL: qwen2.5-coder:7b
+[config] OLLAMA_BASE_URL: http://localhost:11434
+
+Provider check
+==============
+
+USER:
+Which model provider is this project currently using?
+
+ASSISTANT:
+The assistant should confirm that the project is currently using the Ollama model provider.
+The exact wording may vary by local model.
+
+Conclusion
+==========
+
+The project now has a provider switch. Ollama remains the default local provider, while OpenRouter can be enabled later through environment variables.
