@@ -1,5 +1,5 @@
 13 Bug Tracker Agent with LangGraph
-====================================
+===================================
 
 INITIAL CONTEXT:
 {
@@ -19,8 +19,7 @@ INITIAL STATE:
   "learner_name": "Muhammad",
   "current_topic": "bug_tracker_agent_langgraph",
   "completed_topics": [
-    "production_ready_agents",
-    "middleware_concept"
+    "production_ready_agents"
   ],
   "last_action": "started_bug_tracker_lab",
   "notes": [],
@@ -29,7 +28,7 @@ INITIAL STATE:
 }
 
 Step 1: list all bugs (empty)
-==============================
+=============================
 
 USER:
 Show all current bugs.
@@ -38,7 +37,7 @@ TOOL RESULT:
 No bugs reported.
 
 Step 2: create three bugs
-==========================
+=========================
 
 USER:
 Report three bugs in the codebase.
@@ -57,8 +56,7 @@ BUG STATE:
   "learner_name": "Muhammad",
   "current_topic": "bug_tracker_agent_langgraph",
   "completed_topics": [
-    "production_ready_agents",
-    "middleware_concept"
+    "production_ready_agents"
   ],
   "last_action": "tool_created_bug:3",
   "notes": [],
@@ -86,7 +84,7 @@ BUG STATE:
 }
 
 Step 3: list bugs after creation
-=================================
+================================
 
 USER:
 List bugs after creation.
@@ -94,10 +92,10 @@ List bugs after creation.
 TOOL RESULT:
 [BUG-1] [HIGH ] OPEN     | Login button does not respond
 [BUG-2] [LOW  ] OPEN     | Dark mode icon misaligned
-[BUG-3] [MED  ] OPEN     | API timeout on large payloads
+[BUG-3] [MEDIUM] OPEN     | API timeout on large payloads
 
 Step 4: resolve high-severity bug
-==================================
+=================================
 
 USER:
 Mark the high-severity bug as resolved.
@@ -110,8 +108,7 @@ BUG STATE:
   "learner_name": "Muhammad",
   "current_topic": "bug_tracker_agent_langgraph",
   "completed_topics": [
-    "production_ready_agents",
-    "middleware_concept"
+    "production_ready_agents"
   ],
   "last_action": "tool_resolved_bug:1",
   "notes": [],
@@ -139,7 +136,7 @@ BUG STATE:
 }
 
 Step 5: resolve already-resolved bug
-=====================================
+====================================
 
 USER:
 Try to resolve an already resolved bug.
@@ -148,7 +145,7 @@ TOOL RESULT:
 BUG-1 is already resolved.
 
 Step 6: attempt to reopen an already-open bug
-================================================
+=============================================
 
 USER:
 Reopen the dark mode bug.
@@ -161,8 +158,7 @@ BUG STATE:
   "learner_name": "Muhammad",
   "current_topic": "bug_tracker_agent_langgraph",
   "completed_topics": [
-    "production_ready_agents",
-    "middleware_concept"
+    "production_ready_agents"
   ],
   "last_action": "tool_reopen_already:2",
   "notes": [],
@@ -204,8 +200,7 @@ FINAL STATE:
   "learner_name": "Muhammad",
   "current_topic": "bug_tracker_agent_langgraph",
   "completed_topics": [
-    "production_ready_agents",
-    "middleware_concept"
+    "production_ready_agents"
   ],
   "last_action": "tool_reopen_already:2",
   "notes": [],
