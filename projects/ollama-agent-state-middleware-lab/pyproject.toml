@@ -11,5 +11,29 @@ dependencies = [
     "python-dotenv>=1.0.1",
 ]
 
+[dependency-groups]
+dev = [
+    "taskipy>=1.14.1",
+]
+
+[tool.taskipy.tasks]
+lab01 = "python -m src.part_01_state_foundations.lab_01_messages_only_memory.main"
+lab02 = "python -m src.part_01_state_foundations.lab_02_agent_state_intro.main"
+lab03 = "python -m src.part_01_state_foundations.lab_03_custom_state.main"
+lab04 = "python -m src.part_01_state_foundations.lab_04_model_provider_setup.main"
+lab05 = "python -m src.part_01_state_foundations.lab_05_state_persistence.main"
+
+lab06 = "python -m src.part_02_tools_and_runtime.lab_06_tool_state_read_write.main"
+lab07 = "python -m src.part_02_tools_and_runtime.lab_07_tool_state_challenge.main"
+lab08 = "python -m src.part_02_tools_and_runtime.lab_08_toolruntime_solution.main"
+lab09 = "python -m src.part_02_tools_and_runtime.lab_09_reading_state_in_tools.main"
+lab10 = "python -m src.part_02_tools_and_runtime.lab_10_writing_state_from_tools.main"
+lab11 = "python -m src.part_02_tools_and_runtime.lab_11_context_vs_state.main"
+
+lab12 = "python -m src.part_03_langgraph_capstone.lab_12_production_ready_agents.main"
+lab13 = "python -m src.part_03_langgraph_capstone.lab_13_bug_tracker_agent_langgraph.main"
+
+lab14 = "python -m src.part_04_middleware.lab_14_middleware_concept.main"
+
 [tool.uv]
 package = false
