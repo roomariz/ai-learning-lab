@@ -1,0 +1,104 @@
+09 Reading State in Tools
+=========================
+
+INITIAL STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution"
+  ],
+  "current_topic": "reading_state_in_tools",
+  "last_action": "started_reading_state_lab",
+  "notes": [
+    "ToolRuntime groups state and context behind one clean tool interface."
+  ]
+}
+
+RUNTIME CONTEXT:
+{
+  "user_id": "learner-001",
+  "role": "learner",
+  "authorised_tools": [
+    "read_profile",
+    "read_progress",
+    "read_next_topic"
+  ]
+}
+
+Step 1: tool reads learner profile
+==================================
+
+USER:
+Read my learner profile from state.
+
+TOOL RESULT:
+Learner: Muhammad
+Preferred language: Python
+Role: learner
+
+Step 2: tool reads learning progress
+====================================
+
+USER:
+Read my completed topics from state.
+
+TOOL RESULT:
+Completed topics:
+- custom_state
+- state_persistence
+- tool_state_read_write
+- toolruntime_solution
+Last action: started_reading_state_lab
+
+Step 3: tool reads current topic
+================================
+
+USER:
+Read my current topic from state.
+
+TOOL RESULT:
+Current topic: reading_state_in_tools
+
+Step 4: unauthorised read is blocked
+====================================
+
+USER:
+Try to read private admin notes.
+
+TOOL RESULT:
+Tool blocked: read_private_admin_notes
+
+Read-only summary
+=================
+
+SUMMARY:
+Reading state in tools is useful when a tool needs current facts before acting.
+This lab only reads state. It does not update state.
+Current topic remains: reading_state_in_tools
+Last action remains: started_reading_state_lab
+
+FINAL STATE:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution"
+  ],
+  "current_topic": "reading_state_in_tools",
+  "last_action": "started_reading_state_lab",
+  "notes": [
+    "ToolRuntime groups state and context behind one clean tool interface."
+  ]
+}
+
+Conclusion
+==========
+
+Tools can read state to make informed decisions without changing it. Read-only tools are useful for profile checks, progress checks, permission checks, and routing decisions.
