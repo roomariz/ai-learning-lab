@@ -34,6 +34,12 @@ lab12 = "python -m src.part_03_langgraph_capstone.lab_12_production_ready_agents
 lab13 = "python -m src.part_03_langgraph_capstone.lab_13_bug_tracker_agent_langgraph.main"
 
 lab14 = "python -m src.part_04_middleware.lab_14_middleware_concept.main"
+lab15 = "python -m src.part_04_middleware.lab_15_middleware_hooks.main"
+lab16 = "python -m src.part_04_middleware.lab_16_input_validation_middleware.main"
+lab17 = "python -m src.part_04_middleware.lab_17_tool_authorisation.main"
+lab18 = "python -m src.part_04_middleware.lab_18_error_handling_middleware.main"
+lab19 = "python -m src.part_04_middleware.lab_19_builtin_middleware.main"
+lab20 = "python -m src.part_04_middleware.lab_20_middleware_execution_order.main"
 
 [tool.uv]
 package = false

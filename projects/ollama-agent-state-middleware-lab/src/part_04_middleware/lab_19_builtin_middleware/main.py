@@ -1,37 +1,57 @@
-from langchain.agents import create_agent
-from langchain.agents.middleware import create_middleware
-from langchain_core.messages import HumanMessage
-from langgraph.checkpoint.memory import MemorySaver
-from langgraph.graph import StateGraph
+from dataclasses import dataclass, field
+from typing import Callable, TypedDict
 
-from src.common.model import get_chat_model
+
+class BuiltinMiddlewareState(TypedDict):
+    learner_name: str
+    current_topic: str
+    completed_topics: list[str]
+    last_action: str
+    notes: list[str]
+    middleware_log: list[str]
+
+
+@dataclass
+class BuiltinMiddleware:
+    name: str
+    before_model: Callable[[dict, "BuiltinRuntime"], None] | None = None
+    after_model: Callable[[dict, "BuiltinRuntime"], None] | None = None
+
+
+@dataclass
+class BuiltinRuntime:
+    context: dict
+    middleware_stack: list[BuiltinMiddleware] = field(default_factory=list)
+
+    def execute(self, state: dict) -> None:
+        for mw in self.middleware_stack:
+            if mw.before_model:
+                mw.before_model(state, self)
+                state["middleware_log"].append(f"{mw.name}.before_model")
+
+        state["middleware_log"].append("[model call]")
+
+        for mw in reversed(self.middleware_stack):
+            if mw.after_model:
+                mw.after_model(state, self)
+                state["middleware_log"].append(f"{mw.name}.after_model")
 
 
 def create_builtin_middleware_demo() -> None:
-    model = get_chat_model()
-
-    request_id_middleware = create_middleware(
+    request_id_middleware = BuiltinMiddleware(
         name="request_id",
-        before_model=lambda state, runtime: print(
-            f"[request_id] Generating request ID for turn."
-        ),
-        after_model=lambda state, runtime: print(
-            f"[request_id] Request completed."
-        ),
+        before_model=lambda s, r: print("[request_id] Generating request ID for turn."),
+        after_model=lambda s, r: print("[request_id] Request completed."),
     )
 
-    timing_middleware = create_middleware(
+    timing_middleware = BuiltinMiddleware(
         name="timing",
-        before_model=lambda state, runtime: print(
-            f"[timing] Model call starting."
-        ),
-        after_model=lambda state, runtime: print(
-            f"[timing] Model call finished."
-        ),
+        before_model=lambda s, r: print("[timing] Model call starting."),
+        after_model=lambda s, r: print("[timing] Model call finished."),
     )
 
     print(
-        "This lab demonstrates LangGraph's built-in middleware hooks.\n"
+        "This lab demonstrates built-in middleware hooks.\n"
         "It shows where before_model and after_model run in the agent lifecycle."
     )
 
@@ -44,38 +64,22 @@ def create_builtin_middleware_demo() -> None:
     print("  after_model hooks run after the LLM call.")
     print("  Middleware runs in the order they are registered.")
 
+    print("\n" + "-" * 40)
+    print("Demo execution:")
 
-def create_agent_with_middleware() -> None:
-    model = get_chat_model()
+    runtime = BuiltinRuntime(context={})
+    runtime.middleware_stack = [request_id_middleware, timing_middleware]
 
-    request_id_middleware = create_middleware(
-        name="request_id",
-        before_model=lambda state, runtime: print("[request_id] start"),
-        after_model=lambda state, runtime: print("[request_id] end"),
-    )
+    state: BuiltinMiddlewareState = {
+        "learner_name": "Muhammad",
+        "current_topic": "builtin_middleware",
+        "completed_topics": [],
+        "last_action": "started_builtin_middleware",
+        "notes": [],
+        "middleware_log": [],
+    }
 
-    timing_middleware = create_middleware(
-        name="timing",
-        before_model=lambda state, runtime: print("[timing] start"),
-        after_model=lambda state, runtime: print("[timing] end"),
-    )
-
-    print("\nCreating agent with middleware pipeline...")
-
-    agent = create_agent(
-        model=model,
-        tools=[],
-        middleware=[request_id_middleware, timing_middleware],
-    )
-
-    print("Agent created. Invoking with a test message...")
-
-    result = agent.invoke({
-        "messages": [HumanMessage(content="Say hello in one word.")]
-    })
-
-    print("\nAgent invocation complete.")
-    print(f"Response: {result['messages'][-1].content}")
+    runtime.execute(state)
 
 
 def main() -> None:
@@ -83,12 +87,11 @@ def main() -> None:
     print("=" * 40)
 
     create_builtin_middleware_demo()
-    create_agent_with_middleware()
 
     print("\nConclusion")
     print("-" * 40)
     print(
-        "LangGraph provides built-in middleware hooks: before_model and after_model. "
+        "Built-in middleware hooks: before_model and after_model. "
         "These allow you to inject logic at the start and end of each model call. "
         "Common uses include request ID generation, timing, logging, and metrics collection."
     )

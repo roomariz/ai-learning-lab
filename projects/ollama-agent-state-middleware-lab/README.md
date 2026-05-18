@@ -18,24 +18,40 @@ The project is local-first. Ollama is the default model provider, with optional 
 │   │   ├── printer.py
 │   │   └── utils.py
 │   │
-│   ├── 01_messages_only_memory/
-│   ├── 02_agent_state_intro/
-│   ├── 03_custom_state/
-│   ├── 04_model_provider_setup/
-│   ├── 05_state_persistence/
-│   ├── 06_tool_state_read_write/
-│   ├── 07_tool_state_challenge/
-│   ├── 08_toolruntime_solution/
-│   ├── 09_reading_state_in_tools/
-│   ├── 10_writing_state_from_tools/
-│   ├── 11_context_vs_state/
-│   ├── 12_production_ready_agents/
-│   └── 13_middleware_concept/
+│   ├── part_01_state_foundations/
+│   │   ├── lab_01_messages_only_memory/
+│   │   ├── lab_02_agent_state_intro/
+│   │   ├── lab_03_custom_state/
+│   │   ├── lab_04_model_provider_setup/
+│   │   └── lab_05_state_persistence/
+│   │
+│   ├── part_02_tools_and_runtime/
+│   │   ├── lab_06_tool_state_read_write/
+│   │   ├── lab_07_tool_state_challenge/
+│   │   ├── lab_08_toolruntime_solution/
+│   │   ├── lab_09_reading_state_in_tools/
+│   │   ├── lab_10_writing_state_from_tools/
+│   │   └── lab_11_context_vs_state/
+│   │
+│   ├── part_03_langgraph_capstone/
+│   │   ├── lab_12_production_ready_agents/
+│   │   └── lab_13_bug_tracker_agent_langgraph/
+│   │
+│   └── part_04_middleware/
+│       ├── lab_14_middleware_concept/
+│       ├── lab_15_middleware_hooks/
+│       ├── lab_16_input_validation_middleware/
+│       ├── lab_17_tool_authorisation/
+│       ├── lab_18_error_handling_middleware/
+│       ├── lab_19_builtin_middleware/
+│       └── lab_20_middleware_execution_order/
 └── data/
     └── state/
 ```
 
-## Completed labs
+## Labs by Part
+
+### Part 1: State Foundations (Labs 01-05)
 
 | Lab | Topic                    | Purpose                                                     |
 | --: | ------------------------ | ----------------------------------------------------------- |
@@ -44,25 +60,36 @@ The project is local-first. Ollama is the default model provider, with optional 
 |  03 | Custom state             | Tracks learner profile, progress, topic, and last action    |
 |  04 | Model provider setup     | Adds a provider switch for Ollama and optional OpenRouter   |
 |  05 | State persistence        | Saves and loads state from JSON                             |
+
+### Part 2: Tools and Runtime (Labs 06-11)
+
+| Lab | Topic                    | Purpose                                                     |
+| --: | ------------------------ | ----------------------------------------------------------- |
 |  06 | Tool state read/write    | Shows tools reading and writing state manually              |
 |  07 | Tool state challenge     | Shows why manual state passing becomes fragile              |
 |  08 | ToolRuntime solution     | Introduces a runtime object for state and context           |
 |  09 | Reading state in tools   | Shows read-only tool access to state                        |
 |  10 | Writing state from tools | Shows controlled state mutation from tools                  |
 |  11 | Context vs state         | Separates stable runtime context from changing state        |
-|  12 | Production-ready agents  | Adds validation, authorisation, blocking, and observability |
-|  13 | Middleware concept       | Moves production controls into middleware-style functions   |
 
-## Upcoming labs
+### Part 3: LangGraph Capstone (Labs 12-13)
 
-```txt
-14_middleware_hooks
-15_input_validation_middleware
-16_tool_authorisation
-17_error_handling_middleware
-18_builtin_middleware
-19_middleware_execution_order
-```
+| Lab | Topic                       | Purpose                                                     |
+| --: | --------------------------- | ----------------------------------------------------------- |
+|  12 | Production-ready agents     | Adds validation, authorisation, blocking, and observability |
+|  13 | Bug tracker agent LangGraph | Full bug tracker with LangGraph                              |
+
+### Part 4: Middleware (Labs 14-20)
+
+| Lab | Topic                        | Purpose                                                     |
+| --: | ---------------------------- | ----------------------------------------------------------- |
+|  14 | Middleware concept           | Moves production controls into middleware-style functions   |
+|  15 | Middleware hooks             | Pre/post tool execution hooks                               |
+|  16 | Input validation middleware  | Validates user input before tools                          |
+|  17 | Tool authorisation           | Controls which tools users can call                        |
+|  18 | Error handling middleware    | Catches and handles tool errors                            |
+|  19 | Builtin middleware           | Reusable middleware components                             |
+|  20 | Middleware execution order   | Controls middleware execution order                         |
 
 ## Prerequisites
 
@@ -112,22 +139,26 @@ OPENROUTER_MODEL=openai/gpt-4o-mini
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 ```
 
-## Run labs with uv
+## Run labs with taskipy
 
 Each lab has its own `README.md`, `main.py`, and `expected_output.txt`.
 
-Run one lab:
-
 ```bash
-uv run python -m src.01_messages_only_memory.main
+uv run task lab01
+uv run task lab05
+uv run task lab13
 ```
 
-Examples:
+To see all available tasks:
 
 ```bash
-uv run python -m src.05_state_persistence.main
-uv run python -m src.08_toolruntime_solution.main
-uv run python -m src.13_middleware_concept.main
+uv run task --list
+```
+
+To run a specific lab directly without taskipy:
+
+```bash
+uv run python -m src.part_01_state_foundations.lab_01_messages_only_memory.main
 ```
 
 ## Local state files

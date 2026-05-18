@@ -1,8 +1,53 @@
-from langchain.agents import create_agent
-from langchain.agents.middleware import create_middleware
-from langchain_core.messages import HumanMessage
+from dataclasses import dataclass, field
+from typing import Callable, TypedDict
 
-from src.common.model import get_chat_model
+
+class MiddlewareState(TypedDict):
+    learner_name: str
+    current_topic: str
+    completed_topics: list[str]
+    last_action: str
+    notes: list[str]
+    execution_log: list[str]
+
+
+@dataclass
+class Middleware:
+    name: str
+    before_model: Callable[[dict, "Runtime"], None] | None = None
+    after_model: Callable[[dict, "Runtime"], None] | None = None
+    before_tool: Callable[[dict, "Runtime"], None] | None = None
+    after_tool: Callable[[dict, "Runtime"], None] | None = None
+
+
+@dataclass
+class Runtime:
+    context: dict
+    middleware_stack: list[Middleware] = field(default_factory=list)
+
+    def execute_with_middleware(self, state: dict) -> None:
+        execution_log: list[str] = []
+
+        before_model_middlewares = [
+            m for m in self.middleware_stack if m.before_model
+        ]
+        after_model_middlewares = [
+            m for m in reversed(self.middleware_stack) if m.after_model
+        ]
+
+        for mw in before_model_middlewares:
+            if mw.before_model:
+                mw.before_model(state, self)
+                execution_log.append(f"{mw.name}.before_model")
+
+        execution_log.append("[model call]")
+
+        for mw in after_model_middlewares:
+            if mw.after_model:
+                mw.after_model(state, self)
+                execution_log.append(f"{mw.name}.after_model")
+
+        state["execution_log"] = execution_log
 
 
 def main() -> None:
@@ -14,16 +59,16 @@ def main() -> None:
         "after_model hooks run in reverse registration order.\n"
     )
 
-    middleware_a = create_middleware(
+    middleware_a = Middleware(
         name="MiddlewareA",
-        before_model=lambda state, runtime: print("[A] before_model"),
-        after_model=lambda state, runtime: print("[A] after_model"),
+        before_model=lambda s, r: print("[A] before_model"),
+        after_model=lambda s, r: print("[A] after_model"),
     )
 
-    middleware_b = create_middleware(
+    middleware_b = Middleware(
         name="MiddlewareB",
-        before_model=lambda state, runtime: print("[B] before_model"),
-        after_model=lambda state, runtime: print("[B] after_model"),
+        before_model=lambda s, r: print("[B] before_model"),
+        after_model=lambda s, r: print("[B] after_model"),
     )
 
     print("Middleware registered: [A, B]")
@@ -36,19 +81,32 @@ def main() -> None:
     print()
     print("-" * 40)
 
-    model = get_chat_model()
-    agent = create_agent(
-        model=model,
-        tools=[],
-        middleware=[middleware_a, middleware_b],
-    )
+    runtime = Runtime(context={"user_id": "learner-001"})
+    runtime.middleware_stack = [middleware_a, middleware_b]
 
-    result = agent.invoke({
-        "messages": [HumanMessage(content="Say hello in one word.")]
-    })
+    state: MiddlewareState = {
+        "learner_name": "Muhammad",
+        "current_topic": "middleware_execution_order",
+        "completed_topics": [
+            "production_ready_agents",
+            "middleware_concept",
+            "middleware_hooks",
+            "input_validation_middleware",
+            "tool_authorisation",
+            "error_handling_middleware",
+            "builtin_middleware",
+        ],
+        "last_action": "started_middleware_execution_order",
+        "notes": [],
+        "execution_log": [],
+    }
+
+    runtime.execute_with_middleware(state)
 
     print("-" * 40)
-    print("\nAgent response:", result["messages"][-1].content)
+    print("\nExecution log:")
+    for entry in state["execution_log"]:
+        print(f"  {entry}")
 
     print("\nConclusion")
     print("-" * 40)
