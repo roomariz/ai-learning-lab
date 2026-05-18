@@ -1,0 +1,35 @@
+19 Built-in Middleware
+=====================
+
+This lab demonstrates LangGraph's built-in middleware hooks.
+It shows where before_model and after_model run in the agent lifecycle.
+
+Middleware registered:
+  1. request_id  - logs request ID generation
+  2. timing       - logs model call timing
+
+Hook execution order:
+  before_model hooks run before the LLM call.
+  after_model hooks run after the LLM call.
+  Middleware runs in the order they are registered.
+
+Creating agent with middleware pipeline...
+Agent created. Invoking with a test message...
+[config] Project root: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab
+[config] .env path: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab\.env
+[config] .env loaded: True
+[config] MODEL_PROVIDER: ollama
+[config] OLLAMA_MODEL: qwen2.5-coder:7b
+[config] OLLAMA_BASE_URL: http://localhost:11434
+[request_id] start
+[timing] start
+[request_id] end
+[timing] end
+
+Agent invocation complete.
+Response: Hello!
+
+Conclusion
+----------
+
+LangGraph provides built-in middleware hooks: before_model and after_model. These allow you to inject logic at the start and end of each model call. Common uses include request ID generation, timing, logging, and metrics collection.

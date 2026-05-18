@@ -1,0 +1,34 @@
+20 Middleware Execution Order
+==============================
+
+This lab demonstrates the execution order of multiple middleware instances.
+before_model hooks run in registration order.
+after_model hooks run in reverse registration order.
+
+Middleware registered: [A, B]
+Expected order:
+  [A] before_model
+  [B] before_model
+  [model call]
+  [B] after_model
+  [A] after_model
+
+-------------------------------------------------------------------------------
+[config] Project root: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab
+[config] .env path: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab\.env
+[config] .env loaded: True
+[config] MODEL_PROVIDER: ollama
+[config] OLLAMA_MODEL: qwen2.5-coder:7b
+[config] OLLAMA_BASE_URL: http://localhost:11434
+[A] before_model
+[B] before_model
+[B] after_model
+[A] after_model
+-------------------------------------------------------------------------------
+
+Agent response: Hello!
+
+Conclusion
+----------
+
+Middleware execution follows a predictable nesting pattern. before_model runs in registration order; after_model runs in reverse. This allows middleware to wrap the model call cleanly.

@@ -1,0 +1,141 @@
+15 Middleware Hooks
+===================
+
+INITIAL CONTEXT:
+{
+  "user_id": "learner-001",
+  "role": "learner",
+  "environment": "local",
+  "authorised_tools": [
+    "add_note",
+    "complete_topic"
+  ],
+  "max_input_length": 120
+}
+
+Middleware hook phases
+======================
+
+BEFORE_REQUEST:
+Called before any checks run.
+
+CHECK (MIDDLE):
+Validation or authorisation logic.
+
+AFTER_REQUEST:
+Called after the request is handled.
+
+ON_ERROR:
+Called when an exception propagates.
+
+HOOK_LOG (EMPTY):
+[]
+
+Step 1: normal request with all hook phases
+============================================
+
+REQUEST:
+{
+  "user_message": "Add a note about middleware hooks.",
+  "tool_name": "add_note",
+  "payload": "Hooks separate lifecycle concerns cleanly."
+}
+
+RESULT:
+Note added: Hooks separate lifecycle concerns cleanly.
+
+HOOK_LOG:
+[
+  "before_request:input_validation",
+  "before_request:tool_auth",
+  "before_request:audit",
+  "check:input_validation",
+  "check:tool_auth",
+  "after_request:audit",
+  "after_request:tool_auth",
+  "after_request:input_validation",
+  "log:audit"
+]
+
+Step 2: blocked request stops after check
+==========================================
+
+REQUEST:
+{
+  "user_message": "",
+  "tool_name": "add_note",
+  "payload": "Should not be added."
+}
+
+RESULT:
+Blocked: message is empty.
+
+HOOK_LOG:
+[
+  "before_request:input_validation",
+  "before_request:tool_auth",
+  "before_request:audit",
+  "check:input_validation",
+  "check:tool_auth",
+  "after_request:audit",
+  "after_request:tool_auth",
+  "after_request:input_validation",
+  "log:audit",
+  "before_request:input_validation",
+  "before_request:tool_auth",
+  "before_request:audit",
+  "check:input_validation",
+  "after_request:audit",
+  "after_request:tool_auth",
+  "after_request:input_validation",
+  "log:audit"
+]
+
+Hooks summary
+=============
+
+SUMMARY:
+Hooks give middleware a lifecycle: before, during, after, on_error.
+Tool calls: 1
+Blocked: 1
+Total hook calls: 18
+
+FINAL STATE:
+{
+  "learner_name": "Muhammad",
+  "current_topic": "middleware_hooks",
+  "completed_topics": [
+    "production_ready_agents",
+    "middleware_concept"
+  ],
+  "last_action": "blocked_empty_input",
+  "notes": [
+    "Hooks separate lifecycle concerns cleanly."
+  ],
+  "hook_log": [
+    "before_request:input_validation",
+    "before_request:tool_auth",
+    "before_request:audit",
+    "check:input_validation",
+    "check:tool_auth",
+    "after_request:audit",
+    "after_request:tool_auth",
+    "after_request:input_validation",
+    "log:audit",
+    "before_request:input_validation",
+    "before_request:tool_auth",
+    "before_request:audit",
+    "check:input_validation",
+    "after_request:audit",
+    "after_request:tool_auth",
+    "after_request:input_validation",
+    "log:audit"
+  ],
+  "tool_call_count": 1,
+  "blocked_request_count": 1
+}
+
+Conclusion
+==========
+
+Middleware hooks separate lifecycle concerns: before, during, after, and on_error. This makes it easier to add logging, metrics, or cleanup without mixing it into business logic.
