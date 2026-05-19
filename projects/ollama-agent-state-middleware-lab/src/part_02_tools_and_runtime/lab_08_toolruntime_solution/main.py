@@ -21,6 +21,9 @@ class RuntimeContext(TypedDict):
     authorised_tools: list[str]
 
 
+# ToolRuntime groups state and context behind one clean interface.
+# This separates orchestration (passing runtime) from tool logic (using runtime).
+# Production agents use this pattern to keep tools focused on their domain.
 @dataclass
 class ToolRuntime:
     """

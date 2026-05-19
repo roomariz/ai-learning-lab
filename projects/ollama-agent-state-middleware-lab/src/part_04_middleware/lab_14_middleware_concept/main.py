@@ -50,6 +50,8 @@ class MiddlewareRuntime:
         return tool_name in self.context["authorised_tools"]
 
 
+# Middleware separates orchestration (validation, auth, audit) from tool logic.
+# This makes production agents easier to reason about: control happens before tools run.
 MiddlewareResult = str | None
 Middleware = Callable[[MiddlewareRuntime, Request], MiddlewareResult]
 
@@ -171,6 +173,8 @@ def handle_request(
     request: Request,
     middleware: list[Middleware],
 ) -> str:
+    # Middleware runs in order; first one to return a result blocks the request.
+    # This chain pattern lets you compose validation, auth, logging, rate limiting.
     for item in middleware:
         result = item(runtime, request)
         if result is not None:

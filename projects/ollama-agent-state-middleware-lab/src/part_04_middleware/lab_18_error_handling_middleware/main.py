@@ -48,6 +48,8 @@ class ErrorRuntime:
         self.state["last_action"] = action
 
 
+# Error handling middleware prevents tool failures from breaking the agent loop.
+# Production agents need fallback values, retry logic, and error logging.
 class ErrorHandlingMiddleware:
     def __init__(self, runtime: ErrorRuntime) -> None:
         self.runtime = runtime

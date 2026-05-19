@@ -20,6 +20,9 @@ class ReadOnlyContext(TypedDict):
     authorised_tools: list[str]
 
 
+# Read-only tools inspect state without modifying it.
+# Useful for profile checks, progress checks, permission checks, routing decisions.
+# In production, this separation prevents accidental state corruption.
 @dataclass(frozen=True)
 class ReadOnlyToolRuntime:
     """

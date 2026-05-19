@@ -5,6 +5,10 @@ from typing import TypedDict
 from src.common.printer import print_section, print_turn
 
 
+# State vs Context: A key architectural separation in production agents.
+# - State: changes during the agent run (current_topic, notes, tool_call_count)
+# - Context: stable info for this run (user_id, role, tenant_id, environment)
+# This separation makes tools easier to reason about and enables proper persistence.
 class AgentState(TypedDict):
     learner_name: str
     preferred_language: str

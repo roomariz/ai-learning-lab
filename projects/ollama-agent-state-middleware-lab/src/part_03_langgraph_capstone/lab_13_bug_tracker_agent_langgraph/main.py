@@ -62,6 +62,8 @@ Severity = Literal["low", "medium", "high"]
 # - Custom state must extend AgentState
 # - Define your state fields with type annotations
 # - The agent now has access to these fields in addition to messages
+# - AgentState fields persist across invocations, unlike message history
+#   which must be resent each time
 class BugState(AgentState):
     learner_name: str  # Name of the learner using the agent
     current_topic: str  # Current topic being worked on
@@ -146,6 +148,8 @@ def list_bugs_by_severity(runtime: ToolRuntime) -> str:
 # - Return Command(update={...}) with the fields you want to update
 # - Always include a messages update with a ToolMessage for the LLM to process
 # - Use runtime.tool_call_id for the tool message ID
+# - Command(update={...}) is the idiomatic way to mutate state in LangGraph;
+#   tools return this instead of directly editing state
 
 
 @tool
@@ -295,6 +299,7 @@ def reopen_bug(bug_id: int, runtime: ToolRuntime) -> Command:
 # - Use checkpointer=MemorySaver() to persist state across conversation turns
 # - State is persisted with the thread_id from the config
 # - The agent remembers all bugs, actions, and changes made to state
+# - MemorySaver is the in-memory variant; production uses SqliteSaver or PostgresSaver
 
 SYSTEM_PROMPT = """
                     You are a Bug Tracker Agent.
@@ -323,9 +328,12 @@ def build_agent():
         temperature=0,
     )
 
-    # Create agent with custom state schema and memory checkpointer
-    # Key: Pass state_schema=BugState to tell agent about our custom state fields
-    # Key: Pass checkpointer=MemorySaver() to persist state across turns
+    # create_agent combines model, tools, state schema, and persistence.
+    # - model: The LLM that drives agent decisions
+    # - tools: Functions the agent can call to read/write state
+    # - state_schema: Typed fields that persist across invocations
+    # - checkpointer: Storage backend for state (MemorySaver for dev, DB for prod)
+    # - system_prompt: Agent behaviour instructions
     return create_agent(
         model=model,
         tools=[

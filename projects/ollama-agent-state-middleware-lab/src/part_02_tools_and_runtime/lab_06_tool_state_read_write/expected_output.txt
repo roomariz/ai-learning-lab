@@ -1,8 +1,7 @@
 06 Tool State Read Write
 ========================
-
-[config] Project root: ...
-[config] .env path: ...
+[config] Project root: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab
+[config] .env path: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab\.env
 [config] .env loaded: True
 [config] MODEL_PROVIDER: ollama
 [config] OLLAMA_MODEL: qwen2.5-coder:7b
@@ -25,17 +24,19 @@ Step 1: tool reads from state
 =============================
 
 USER:
-Use a tool to read my current learning status.
+Read my current learning status.
 
-TOOL RESULT:
-Learner: Muhammad
-Preferred language: Python
-Completed topics: custom_state, state_persistence
-Current topic: tool_state_read_write
+EXPECTED TOOL:
+read_learning_status
 
 ASSISTANT:
-The assistant should summarise the tool result.
-The exact wording may vary by local model.
+{
+  "name": "read_learning_status",
+  "arguments": {}
+}
+
+STATE ACCESSED VIA:
+runtime.state (injected by framework)
 
 Step 2: tool writes a note to state
 ===================================
@@ -43,10 +44,18 @@ Step 2: tool writes a note to state
 USER:
 Add a note that tools can update structured state.
 
-WRITTEN NOTE:
-Tools can read from and write to structured agent state.
+EXPECTED TOOL:
+add_learning_note
 
-STATE:
+ASSISTANT:
+{
+  "name": "add_learning_note",
+  "arguments": {
+    "note": "tools can update structured state."
+  }
+}
+
+STATE AFTER UPDATE:
 {
   "learner_name": "Muhammad",
   "preferred_language": "Python",
@@ -55,11 +64,15 @@ STATE:
     "state_persistence"
   ],
   "current_topic": "tool_state_read_write",
-  "last_action": "tool_added_learning_note",
-  "notes": [
-    "Tools can read from and write to structured agent state."
-  ]
+  "last_action": "started_tool_state_lab",
+  "notes": []
 }
+
+UPDATE MECHANISM:
+Command(update={...})
+
+WARNING:
+Expected note was not added. The model may not have called the tool.
 
 Step 3: tool updates progress in state
 ======================================
@@ -67,21 +80,32 @@ Step 3: tool updates progress in state
 USER:
 Mark the tool state read/write lab as complete.
 
-STATE:
+EXPECTED TOOL:
+complete_topic
+
+ASSISTANT:
+{
+  "name": "complete_topic",
+  "arguments": {
+    "topic": "tool state read/write lab"
+  }
+}
+
+STATE AFTER UPDATE:
 {
   "learner_name": "Muhammad",
   "preferred_language": "Python",
   "completed_topics": [
     "custom_state",
-    "state_persistence",
-    "tool_state_read_write"
+    "state_persistence"
   ],
-  "current_topic": "toolruntime_solution",
-  "last_action": "tool_completed_topic",
-  "notes": [
-    "Tools can read from and write to structured agent state."
-  ]
+  "current_topic": "tool_state_read_write",
+  "last_action": "started_tool_state_lab",
+  "notes": []
 }
+
+WARNING:
+Expected topic completion did not occur. The model may not have called the tool.
 
 Step 4: deterministic summary of updated state
 ==============================================
@@ -90,10 +114,10 @@ USER:
 Summarise what changed after the tools ran.
 
 SUMMARY:
-The tools added this note: Tools can read from and write to structured agent state.
+The tools added this note: No note was added.
 The completed topic is now: tool_state_read_write
-The current topic is now: toolruntime_solution
-The last action is now: tool_completed_topic
+The current topic is now: tool_state_read_write
+The last action is now: started_tool_state_lab
 
 FINAL STATE:
 {
@@ -101,17 +125,23 @@ FINAL STATE:
   "preferred_language": "Python",
   "completed_topics": [
     "custom_state",
-    "state_persistence",
-    "tool_state_read_write"
+    "state_persistence"
   ],
-  "current_topic": "toolruntime_solution",
-  "last_action": "tool_completed_topic",
-  "notes": [
-    "Tools can read from and write to structured agent state."
-  ]
+  "current_topic": "tool_state_read_write",
+  "last_action": "started_tool_state_lab",
+  "notes": []
 }
 
 Conclusion
 ==========
 
-Tools often need access to agent state. A read tool can inspect state, while a write tool can update state after an action. This lab passes state manually so the data flow is easy to see.
+Tools read from and write to agent state using framework patterns:
+- @tool decorator registers tools for the agent
+- ToolRuntime is injected by the framework (not manually created)
+- runtime.state accesses current state
+- Command(update={...}) atomically updates state
+- ToolMessage communicates results back to the agent
+- MemorySaver and thread_id persist state across invocations
+
+Key insight: The runtime parameter is HIDDEN from the LLM.
+The framework automatically injects ToolRuntime when tools are called.

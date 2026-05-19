@@ -24,6 +24,9 @@ class ProductionContext(TypedDict):
     max_input_length: int
 
 
+# ProductionRuntime combines state and context with observability.
+# Production agents need deterministic controls (validation, auth, error handling)
+# around the model to make behaviour safer and easier to debug.
 @dataclass
 class ProductionRuntime:
     state: ProductionState
