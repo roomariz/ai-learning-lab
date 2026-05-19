@@ -2,7 +2,7 @@
 
 ## Goal
 
-Show how a runtime-style object makes tool state access cleaner.
+Show how framework-injected `ToolRuntime` gives tools clean access to agent state.
 
 ## What changed from Lab 07
 
@@ -13,13 +13,16 @@ Lab 07 showed the challenge:
 3. Every tool had to update shared bookkeeping manually.
 4. The pattern became repetitive.
 
-This lab introduces a small educational `ToolRuntime` class.
+This lab uses the real LangChain `ToolRuntime` pattern.
 
-It groups:
+`ToolRuntime` is injected by the framework when a tool is called. It is hidden from the LLM.
 
-1. `state`, which changes during the run.
-2. `context`, which describes the run.
-3. Helper methods for authorisation and bookkeeping.
+Tools access shared runtime information through `ToolRuntime`.
+
+In this lab, tools primarily use:
+
+1. `runtime.state` for persisted agent state
+2. `runtime.tool_call_id` for `ToolMessage`
 
 ## Why this matters
 
@@ -28,22 +31,17 @@ A runtime object gives tools one controlled interface.
 Instead of passing many separate values into every tool, tools receive one object:
 
 ```python
-def read_learning_status_tool(runtime: ToolRuntime) -> str:
+@tool
+def read_learning_status(runtime: ToolRuntime) -> str:
     ...
 ```
 
 This makes tool code easier to read, test, and extend.
 
-> **Educational note**
->
-> This lab uses a small custom ToolRuntime class to explain the concept.
->
-> LangChain and LangGraph also provide runtime mechanisms for tools. Current LangChain documentation describes runtime context as dependency injection for tools and middleware, and the LangGraph reference documents ToolRuntime as an injected runtime parameter for tools.
-
 ## Files in this lab
 
-```
-src/08_toolruntime_solution/
+```txt
+src/part_02_tools_and_runtime/lab_08_toolruntime_solution/
 ├── README.md
 ├── main.py
 └── expected_output.txt
@@ -52,24 +50,26 @@ src/08_toolruntime_solution/
 ## Run
 
 ```bash
-uv run python -m src.08_toolruntime_solution.main
+uv run python -m src.part_02_tools_and_runtime.lab_08_toolruntime_solution.main
 ```
 
 ## Expected behaviour
 
-This lab does not call the model. It is deterministic.
+The exact assistant/tool-routing behaviour may vary because the agent uses the configured model.
 
-The important behaviour is:
+The important behaviour is verified through the printed state after each step.
 
-- The runtime object contains both state and context.
-- A read tool reads state and context through runtime.
-- A write tool adds a note through runtime.
-- A progress tool completes `toolruntime_solution`.
-- The current topic moves to `reading_state_in_tools`.
-- Tool call count increases in one shared way.
+- The agent uses framework-injected `ToolRuntime`.
+- Read tools access state through `runtime.state`.
+- Write tools return `Command(update={...})`.
+- `ToolMessage` records tool execution results.
+- `MemorySaver` and `thread_id` persist state across invocations.
+- Authorised tools are controlled through state.
 
 ## Learning point
 
-Manual state passing works, but it becomes noisy.
+`ToolRuntime` removes repetitive manual state passing.
 
-A runtime object gives tools a cleaner and more controlled way to access state and context.
+Tools no longer need raw state arguments passed manually through the application.
+
+The framework injects runtime automatically, giving tools controlled access to state, tool metadata, and persistent execution context.

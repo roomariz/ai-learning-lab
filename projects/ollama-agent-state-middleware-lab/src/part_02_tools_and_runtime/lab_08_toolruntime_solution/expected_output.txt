@@ -1,5 +1,11 @@
 08 ToolRuntime Solution
 =======================
+[config] Project root: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab
+[config] .env path: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab\.env
+[config] .env loaded: True
+[config] MODEL_PROVIDER: ollama
+[config] OLLAMA_MODEL: qwen2.5-coder:7b
+[config] OLLAMA_BASE_URL: http://localhost:11434
 
 INITIAL STATE:
 {
@@ -13,13 +19,7 @@ INITIAL STATE:
   "current_topic": "toolruntime_solution",
   "last_action": "started_toolruntime_solution",
   "notes": [],
-  "tool_call_count": 0
-}
-
-RUNTIME CONTEXT:
-{
-  "user_id": "learner-001",
-  "role": "learner",
+  "tool_call_count": 0,
   "authorised_tools": [
     "read_learning_status",
     "add_learning_note",
@@ -31,18 +31,12 @@ Step 1: tool reads through runtime
 ==================================
 
 USER:
-Use the runtime object to read my learning status.
+Read my learning status.
 
-TOOL RESULT:
-User ID: learner-001
-Role: learner
-Learner: Muhammad
-Preferred language: Python
-Completed topics: custom_state, state_persistence, tool_state_read_write
-Current topic: toolruntime_solution
-Tool call count: 1
+EXPECTED TOOL:
+read_learning_status
 
-STATE:
+STATE AFTER:
 {
   "learner_name": "Muhammad",
   "preferred_language": "Python",
@@ -52,21 +46,26 @@ STATE:
     "tool_state_read_write"
   ],
   "current_topic": "toolruntime_solution",
-  "last_action": "tool_read_learning_status",
+  "last_action": "started_toolruntime_solution",
   "notes": [],
-  "tool_call_count": 1
+  "tool_call_count": 0,
+  "authorised_tools": [
+    "read_learning_status",
+    "add_learning_note",
+    "complete_topic"
+  ]
 }
 
 Step 2: tool writes through runtime
 ===================================
 
 USER:
-Use the runtime object to add a learning note.
+Add a note: ToolRuntime groups state and context.
 
-WRITTEN NOTE:
-ToolRuntime groups state and context behind one clean tool interface.
+EXPECTED TOOL:
+add_learning_note
 
-STATE:
+STATE AFTER:
 {
   "learner_name": "Muhammad",
   "preferred_language": "Python",
@@ -76,48 +75,53 @@ STATE:
     "tool_state_read_write"
   ],
   "current_topic": "toolruntime_solution",
-  "last_action": "tool_added_learning_note",
-  "notes": [
-    "ToolRuntime groups state and context behind one clean tool interface."
-  ],
-  "tool_call_count": 2
+  "last_action": "started_toolruntime_solution",
+  "notes": [],
+  "tool_call_count": 0,
+  "authorised_tools": [
+    "read_learning_status",
+    "add_learning_note",
+    "complete_topic"
+  ]
 }
 
 Step 3: tool updates progress through runtime
 =============================================
 
 USER:
-Complete the ToolRuntime solution lab.
+Complete the ToolRuntime solution lab and move to next topic.
 
-STATE:
+EXPECTED TOOL:
+complete_topic
+
+STATE AFTER:
 {
   "learner_name": "Muhammad",
   "preferred_language": "Python",
   "completed_topics": [
     "custom_state",
     "state_persistence",
-    "tool_state_read_write",
-    "toolruntime_solution"
+    "tool_state_read_write"
   ],
-  "current_topic": "reading_state_in_tools",
-  "last_action": "tool_completed_topic",
-  "notes": [
-    "ToolRuntime groups state and context behind one clean tool interface."
-  ],
-  "tool_call_count": 3
+  "current_topic": "toolruntime_solution",
+  "last_action": "started_toolruntime_solution",
+  "notes": [],
+  "tool_call_count": 0,
+  "authorised_tools": [
+    "read_learning_status",
+    "add_learning_note",
+    "complete_topic"
+  ]
 }
 
 Runtime summary
 ===============
 
 SUMMARY:
-The runtime object gives tools one controlled interface:
-User ID: learner-001
-Role: learner
-Completed topic: toolruntime_solution
-Current topic: reading_state_in_tools
-Tool call count: 3
-Last action: tool_completed_topic
+Completed: custom_state, state_persistence, tool_state_read_write
+Current topic: toolruntime_solution
+Tool calls: 0
+Last action: started_toolruntime_solution
 
 FINAL STATE:
 {
@@ -126,21 +130,12 @@ FINAL STATE:
   "completed_topics": [
     "custom_state",
     "state_persistence",
-    "tool_state_read_write",
-    "toolruntime_solution"
+    "tool_state_read_write"
   ],
-  "current_topic": "reading_state_in_tools",
-  "last_action": "tool_completed_topic",
-  "notes": [
-    "ToolRuntime groups state and context behind one clean tool interface."
-  ],
-  "tool_call_count": 3
-}
-
-CONTEXT:
-{
-  "user_id": "learner-001",
-  "role": "learner",
+  "current_topic": "toolruntime_solution",
+  "last_action": "started_toolruntime_solution",
+  "notes": [],
+  "tool_call_count": 0,
   "authorised_tools": [
     "read_learning_status",
     "add_learning_note",
@@ -151,4 +146,12 @@ CONTEXT:
 Conclusion
 ==========
 
-A runtime object reduces repetitive manual state passing. Tools can use one interface to read state, write state, check context, and record actions.
+ToolRuntime is the framework-native solution to Lab 07's manual passing:
+- @tool decorator registers tools for the agent
+- ToolRuntime is injected by the framework (not manually created)
+- runtime.state reads current state, returns Command(update={...}) to write
+- ToolMessage is required so the LLM knows the tool ran
+- MemorySaver + thread_id persist state across invocations
+- authorised_tools in state controls tool access at runtime
+
+Key insight: This replaces the manual state-passing pattern from Lab 07.
