@@ -2,22 +2,22 @@
 
 ## Goal
 
-Show how tools can read state without changing it.
+Show how tools can read `AgentState` through framework-injected `ToolRuntime` without changing domain state.
 
 ## What changed from Lab 08
 
-Lab 08 introduced a runtime-style object containing both state and context.
+Lab 08 showed `ToolRuntime` with both read and write tools.
 
 This lab narrows the focus to read-only tools.
 
 The tools can inspect:
 
-1. Learner profile.
-2. Completed topics.
-3. Current topic.
-4. Authorised tool access.
+1. Learner profile
+2. Completed topics
+3. Current topic
+4. Authorised tool access
 
-They do not update state.
+They return strings only. They do not return `Command(update={...})`.
 
 ## Why this matters
 
@@ -27,50 +27,55 @@ Many tools only need to read state before deciding what to return.
 
 Examples:
 
-1. Read the user's role before showing a feature.
-2. Read the current workflow step before choosing the next instruction.
-3. Read completed tasks before recommending the next task.
-4. Read preferences before formatting an answer.
-5. Read permissions before allowing tool access.
+1. Read the user's role before showing a feature
+2. Read the current workflow step before choosing the next instruction
+3. Read completed tasks before recommending the next task
+4. Read preferences before formatting an answer
+5. Read permissions before allowing tool access
 
 ## Read-only convention
 
-This lab uses:
+This lab uses real framework `ToolRuntime`:
 
 ```python
-@dataclass(frozen=True)
-class ReadOnlyToolRuntime:
-    state: ReadOnlyState
-    context: ReadOnlyContext
+@tool
+def read_profile(runtime: ToolRuntime) -> str:
+    ...
+```
 
-This makes the runtime reference read-only, but the state is still a dictionary.
+The tools inspect `runtime.state`, but do not mutate domain state.
 
-So this is an educational convention, not full immutability.
+They return `str`, not `Command(update={...})`.
 
-The important lesson is design intent: these tools should read state, not mutate it.
+## Files in this lab
 
-Files in this lab
-src/09_reading_state_in_tools/
+```
+src/part_02_tools_and_runtime/lab_09_reading_state_in_tools/
 ├── README.md
 ├── main.py
 └── expected_output.txt
-Run
-uv run python -m src.09_reading_state_in_tools.main
-Expected behaviour
+```
 
-This lab does not call the model. It is deterministic.
+## Run
 
-The important behaviour is:
+```bash
+uv run python -m src.part_02_tools_and_runtime.lab_09_reading_state_in_tools.main
+```
 
-The profile tool reads learner name, preferred language, and role.
-The progress tool reads completed topics and last action.
-The next-topic tool reads the current topic.
-The unauthorised read tool is blocked.
-Final state is unchanged.
-Learning point
+## Expected behaviour
 
-Reading state lets tools make informed decisions.
+This lab does call the model through the agent.
 
-Read-only tools should avoid mutation.
+The tools:
 
-The next lab will focus on writing state from tools.
+- The profile tool reads learner name, preferred language, and role
+- The progress tool reads completed topics and last action
+- The next-topic tool reads the current topic
+- The unauthorised read tool is blocked by `authorised_tools` in state
+- No domain state fields are updated
+
+## Learning point
+
+Reading state lets tools make informed decisions without mutation.
+
+The next lab (Lab 10) will focus on writing state from tools through `Command(update={...})`.
