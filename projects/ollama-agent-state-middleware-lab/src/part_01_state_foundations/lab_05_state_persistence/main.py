@@ -1,15 +1,26 @@
-import json
-from pathlib import Path
-from typing import TypedDict, cast
+"""
+Lab 05: State Persistence
 
+This lab shows how to persist structured AgentState across agent invocations
+using MemorySaver and a stable thread_id.
+
+It builds on Lab 03 by keeping custom state available beyond a single
+invocation, without relying on message history.
+"""
+
+from typing import Any, cast
+
+from langchain.agents import AgentState, create_agent
+from langchain_core.messages import HumanMessage
+from langchain_core.runnables import RunnableConfig
 from langchain_ollama import ChatOllama
+from langgraph.checkpoint.memory import MemorySaver
 
 from src.common.model import get_chat_model
 from src.common.printer import print_section, print_turn
-from src.common.utils import load_json_file, save_json_file
 
 
-class PersistentLearningState(TypedDict):
+class PersistentLearningState(AgentState):
     learner_name: str | None
     preferred_language: str | None
     completed_topics: list[str]
@@ -17,137 +28,113 @@ class PersistentLearningState(TypedDict):
     last_action: str | None
 
 
-STATE_FILE = Path("data/state/learning_state.json")
+def message_content_to_str(content: object) -> str:
+    if isinstance(content, str):
+        return content
+    return str(content)
 
 
-def format_state(state: PersistentLearningState) -> str:
-    return json.dumps(state, indent=2)
-
-
-def create_initial_state() -> PersistentLearningState:
+def create_initial_state() -> dict[str, Any]:
     return {
-        "learner_name": None,
-        "preferred_language": None,
-        "completed_topics": [],
-        "current_topic": None,
-        "last_action": None,
+        "messages": [],
+        "learner_name": "Muhammad",
+        "preferred_language": "Python",
+        "completed_topics": ["agent_state_intro", "custom_state"],
+        "current_topic": "state_persistence",
+        "last_action": "initialised_persistent_state",
     }
 
 
-def load_state() -> PersistentLearningState:
-    saved_state = load_json_file(STATE_FILE)
-
-    if saved_state is None:
-        return create_initial_state()
-
-    return cast(PersistentLearningState, saved_state)
-
-
-def save_state(state: PersistentLearningState) -> None:
-    save_json_file(STATE_FILE, dict(state))
-
-
-def update_state_for_lab_05(
-    state: PersistentLearningState,
-) -> PersistentLearningState:
-    state["learner_name"] = "Muhammad"
-    state["preferred_language"] = "Python"
-
-    if "custom_state" not in state["completed_topics"]:
-        state["completed_topics"].append("custom_state")
-
-    state["current_topic"] = "state_persistence"
-    state["last_action"] = "saved_state_to_disk"
-
-    return state
-
-
-def run_first_step(model: ChatOllama, state: PersistentLearningState) -> PersistentLearningState:
-    user_message = (
-        "I have completed the custom state lab. "
-        "Now I want to learn state persistence."
+def format_state_summary(state: dict[str, Any]) -> str:
+    return (
+        f"learner_name={state['learner_name']}\n"
+        f"preferred_language={state['preferred_language']}\n"
+        f"completed_topics={state['completed_topics']}\n"
+        f"current_topic={state['current_topic']}\n"
+        f"last_action={state['last_action']}"
     )
-
-    messages = [
-        (
-            "system",
-            "You are a concise learning assistant. "
-            "Reply in one short sentence. "
-            "Acknowledge the completed topic and next topic only.",
-        ),
-        (
-            "human",
-            user_message,
-        ),
-    ]
-
-    response = model.invoke(messages)
-
-    state = update_state_for_lab_05(state)
-    save_state(state)
-
-    print_section("Step 1: update and save state")
-    print_turn("user", user_message)
-    print_turn("assistant", response.content)
-    print_turn("saved state", format_state(state))
-    print_turn("state file", STATE_FILE.as_posix())
-
-    return state
-
-
-def run_second_step(model: ChatOllama) -> None:
-    loaded_state = load_state()
-
-    user_message = "What did you load from persisted state?"
-
-    state_summary = (
-        f"learner_name={loaded_state['learner_name']}\n"
-        f"preferred_language={loaded_state['preferred_language']}\n"
-        f"completed_topics={loaded_state['completed_topics']}\n"
-        f"current_topic={loaded_state['current_topic']}\n"
-        f"last_action={loaded_state['last_action']}"
-    )
-
-    messages = [
-        (
-            "system",
-            "You are a concise learning assistant. "
-            "Use only the loaded persisted state. "
-            "Do not invent facts.",
-        ),
-        (
-            "human",
-            (
-                f"Loaded persisted state:\n{state_summary}\n\n"
-                f"User question: {user_message}"
-            ),
-        ),
-    ]
-
-    response = model.invoke(messages)
-
-    print_section("Step 2: load state in a later step")
-    print_turn("user", user_message)
-    print_turn("assistant", response.content)
-    print_turn("loaded state", format_state(loaded_state))
 
 
 def main() -> None:
     print_section("05 State Persistence")
 
-    model = get_chat_model()
+    model: ChatOllama = get_chat_model()
 
-    state = load_state()
-    print_turn("initial state", format_state(state))
+    # checkpointer=MemorySaver() enables state persistence across invocations.
+    # The agent now can reload structured state automatically on later calls.
+    agent = create_agent(
+        model=model,
+        tools=[],
+        state_schema=PersistentLearningState,
+        checkpointer=MemorySaver(),
+    )
 
-    state = run_first_step(model, state)
-    run_second_step(model)
+    # thread_id is the key that identifies this conversation session.
+    # Using the same thread_id across calls loads the persisted state automatically.
+    config: RunnableConfig = {
+        "configurable": {
+            "thread_id": "learning-state-demo",
+        }
+    }
+
+    initial_state = create_initial_state()
+    # Seed the checkpointer with the starting state for this thread.
+    # Later calls using the same config can retrieve this state.
+    agent.update_state(config, initial_state)
+
+    first_message = "Summarise my persisted learning state."
+    first_state = agent.get_state(config).values
+    first_summary = format_state_summary(first_state)
+
+    first_input = {
+        "messages": [
+            HumanMessage(
+                content=(
+                    f"Current persisted state:\n{first_summary}\n\n"
+                    f"User question: {first_message}"
+                )
+            )
+        ]
+    }
+
+    first_result = agent.invoke(cast(Any, first_input), config=config)
+    first_response = first_result["messages"][-1]
+
+    print_section("Step 1: state saved under thread_id")
+    print_turn("thread_id", "learning-state-demo")
+    print_turn("user", first_message)
+    print_turn("state", first_summary)
+    print_turn("assistant", message_content_to_str(first_response.content))
+
+    second_message = "What learning state do you still remember?"
+    second_state = agent.get_state(config).values
+    second_summary = format_state_summary(second_state)
+
+    second_input = {
+        "messages": [
+            HumanMessage(
+                content=(
+                    f"Loaded state from same thread_id:\n{second_summary}\n\n"
+                    f"User question: {second_message}"
+                )
+            )
+        ]
+    }
+
+    second_result = agent.invoke(cast(Any, second_input), config=config)
+    second_response = second_result["messages"][-1]
+
+    print_section("Step 2: state loaded from same thread_id")
+    print_turn("thread_id", "learning-state-demo")
+    print_turn("user", second_message)
+    print_turn("state", second_summary)
+    print_turn("assistant", message_content_to_str(second_response.content))
 
     print_section("Conclusion")
-    print()
     print(
-        "State persistence lets the program save structured state outside the model call. "
-        "A later step can load that state again instead of relying on message history."
+        "State persistence uses a checkpointer and a stable thread_id. "
+        "The checkpointer stores the agent state between invocations, so later "
+        "calls can retrieve structured state without relying on message history."
     )
 
 

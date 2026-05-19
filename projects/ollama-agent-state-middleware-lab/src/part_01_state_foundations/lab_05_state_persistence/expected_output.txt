@@ -7,65 +7,64 @@
 [config] OLLAMA_MODEL: qwen2.5-coder:7b
 [config] OLLAMA_BASE_URL: http://localhost:11434
 
-INITIAL STATE:
-{
-  "learner_name": null,
-  "preferred_language": null,
-  "completed_topics": [],
-  "current_topic": null,
-  "last_action": null
-}
+Step 1: state saved under thread_id
+===================================
 
-Step 1: update and save state
-=============================
+THREAD_ID:
+learning-state-demo
 
 USER:
-I have completed the custom state lab. Now I want to learn state persistence.
+Summarise my persisted learning state.
+
+STATE:
+learner_name=Muhammad
+preferred_language=Python
+completed_topics=['agent_state_intro', 'custom_state']
+current_topic=state_persistence
+last_action=initialised_persistent_state
 
 ASSISTANT:
-Great! Next, you should explore how to implement state persistence in your applications for better data management and user experience.
+Your current persisted learning state is as follows:
 
-SAVED STATE:
-{
-  "learner_name": "Muhammad",
-  "preferred_language": "Python",
-  "completed_topics": [
-    "custom_state"
-  ],
-  "current_topic": "state_persistence",
-  "last_action": "saved_state_to_disk"
-}
+- **Learner Name:** Muhammad
+- **Preferred Language:** Python
+- **Completed Topics:** 
+  - `agent_state_intro`
+  - `custom_state`
+- **Current Topic:** state_persistence
+- **Last Action:** initialised_persistent_state
 
-STATE FILE:
-data/state/learning_state.json
+This summary reflects your progress and current focus in the learning process.
 
-Step 2: load state in a later step
-==================================
+Step 2: state loaded from same thread_id
+========================================
+
+THREAD_ID:
+learning-state-demo
 
 USER:
-What did you load from persisted state?
+What learning state do you still remember?
+
+STATE:
+learner_name=Muhammad
+preferred_language=Python
+completed_topics=['agent_state_intro', 'custom_state']
+current_topic=state_persistence
+last_action=initialised_persistent_state
 
 ASSISTANT:
-I loaded the following information from the persisted state:
+I still remember the following aspects of your learning state:
 
-- learner_name: Muhammad
-- preferred_language: Python
-- completed_topics: ['custom_state']
-- current_topic: state_persistence
-- last_action: saved_state_to_disk
+- **Learner Name:** Muhammad
+- **Preferred Language:** Python
+- **Completed Topics:** 
+  - `agent_state_intro`
+  - `custom_state`
+- **Current Topic:** state_persistence
+- **Last Action:** initialised_persistent_state
 
-LOADED STATE:
-{
-  "learner_name": "Muhammad",
-  "preferred_language": "Python",
-  "completed_topics": [
-    "custom_state"
-  ],
-  "current_topic": "state_persistence",
-  "last_action": "saved_state_to_disk"
-}
+This information is based on the state loaded from the same thread_id.
 
 Conclusion
 ==========
-
-State persistence lets the program save structured state outside the model call. A later step can load that state again instead of relying on message history.
+State persistence uses a checkpointer and a stable thread_id. The checkpointer stores the agent state between invocations, so later calls can retrieve structured state without relying on message history.

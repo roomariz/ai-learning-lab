@@ -6,6 +6,10 @@ There's no automatic memory between calls - the model only sees the
 messages passed in the current invocation.
 
 Later labs introduce AgentState and persistence as stronger memory patterns.
+
+Why this matters: In production, isolated message calls mean every request
+must include the full conversation history. Structured state lets the agent
+persist fields across invocations without resending everything.
 """
 
 from langchain_ollama import ChatOllama

@@ -26,6 +26,9 @@ from src.common.model import get_chat_model
 from src.common.printer import print_section, print_turn
 
 
+# AgentState defines structured fields the agent can persist
+# across invocations instead of relying only on message history.
+# This is safer for production: state schema is explicit, typed, and versionable.
 class PreferenceState(AgentState):
     """Custom state schema that includes a preferred_language field."""
     # In later labs, this field will be:
