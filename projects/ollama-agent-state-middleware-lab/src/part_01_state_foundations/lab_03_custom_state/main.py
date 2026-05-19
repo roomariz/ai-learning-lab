@@ -1,12 +1,26 @@
-from typing import TypedDict
+"""
+Lab 03: Custom State
 
+This lab extends the simple AgentState pattern from Lab 02 into a richer
+custom state schema with multiple structured fields.
+
+It shows how an agent can receive profile, progress, current topic, and
+last-action data alongside messages during a single invocation.
+"""
+
+from typing import Any, cast
+
+from langchain.agents import AgentState, create_agent
+from langchain_core.messages import HumanMessage
 from langchain_ollama import ChatOllama
 
 from src.common.model import get_chat_model
 from src.common.printer import print_section, print_turn
 
 
-class LearningAgentState(TypedDict):
+class LearningState(AgentState):
+    """Custom state schema with fields for learner profile and progress."""
+
     learner_name: str | None
     preferred_language: str | None
     completed_topics: list[str]
@@ -14,81 +28,28 @@ class LearningAgentState(TypedDict):
     last_action: str | None
 
 
-def create_initial_state() -> LearningAgentState:
+def message_content_to_str(content: object) -> str:
+    """Extract string content from a message, handling various formats."""
+    if isinstance(content, str):
+        return content
+    return str(content)
+
+
+def create_initial_state() -> dict[str, Any]:
+    """Create the initial state with sample learner data."""
     return {
-        "learner_name": None,
-        "preferred_language": None,
-        "completed_topics": [],
-        "current_topic": None,
-        "last_action": None,
+        "messages": [],
+        "learner_name": "Muhammad",
+        "preferred_language": "Python",
+        "completed_topics": ["agent_state_intro"],
+        "current_topic": "custom_state",
+        "last_action": "updated_learning_profile",
     }
 
 
-def update_learning_state(
-    state: LearningAgentState,
-    learner_name: str,
-    preferred_language: str,
-    completed_topic: str,
-    current_topic: str,
-    last_action: str,
-) -> LearningAgentState:
-    state["learner_name"] = learner_name
-    state["preferred_language"] = preferred_language
-
-    if completed_topic not in state["completed_topics"]:
-        state["completed_topics"].append(completed_topic)
-
-    state["current_topic"] = current_topic
-    state["last_action"] = last_action
-
-    return state
-
-
-def run_first_call(model: ChatOllama, state: LearningAgentState) -> LearningAgentState:
-    user_message = (
-        "My name is Muhammad. My preferred programming language is Python. "
-        "I have completed the agent state intro lab. Now I want to study custom state."
-    )
-
-    messages = [
-        (
-            "system",
-            "You are a concise learning assistant. "
-            "Reply in one short sentence. "
-            "Acknowledge the learner's progress and next topic only.",
-        ),
-        (
-            "human",
-            user_message,
-        ),
-    ]
-
-    response = model.invoke(messages)
-
-    state = update_learning_state(
-        state=state,
-        learner_name="Muhammad",
-        preferred_language="Python",
-        completed_topic="agent_state_intro",
-        current_topic="custom_state",
-        last_action="updated_learning_profile",
-    )
-
-    print_section("Call 1: user shares learning profile")
-    print_turn("user", user_message)
-    print_turn("assistant", response.content)
-    print_turn("state", str(state))
-
-    return state
-
-
-def run_second_call_with_custom_state(
-    model: ChatOllama,
-    state: LearningAgentState,
-) -> None:
-    user_message = "Summarise my current learning status."
-
-    state_summary = (
+def format_state_summary(state: dict[str, Any]) -> str:
+    """Format the state fields as a readable string for the prompt."""
+    return (
         f"learner_name={state['learner_name']}\n"
         f"preferred_language={state['preferred_language']}\n"
         f"completed_topics={state['completed_topics']}\n"
@@ -96,45 +57,59 @@ def run_second_call_with_custom_state(
         f"last_action={state['last_action']}"
     )
 
-    messages = [
-        (
-            "system",
-            "You are a concise learning assistant. "
-            "Use the provided custom state to answer the user. "
-            "Do not invent facts that are not in the state.",
-        ),
-        (
-            "human",
-            (
-                f"Current custom agent state:\n{state_summary}\n\n"
-                f"User question: {user_message}"
-            ),
-        ),
-    ]
-
-    response = model.invoke(messages)
-
-    print_section("Call 2: fresh call with custom state")
-    print_turn("user", user_message)
-    print_turn("assistant", response.content)
-    print_turn("state", str(state))
-
 
 def main() -> None:
     print_section("03 Custom State")
 
-    model = get_chat_model()
-    state = create_initial_state()
+    model: ChatOllama = get_chat_model()
 
-    state = run_first_call(model, state)
-    run_second_call_with_custom_state(model, state)
+    # Create an agent with the custom LearningState schema
+    agent = create_agent(
+        model=model,
+        tools=[],
+        state_schema=LearningState,
+    )
+
+    state = create_initial_state()
+    user_message = "Summarise my current learning status."
+    state_summary = format_state_summary(state)
+
+    # Developer note:
+    # **state unpacks every key/value pair from the existing state dictionary
+    # into this new input dictionary.
+    #
+    # This avoids repeating each state field manually, for example:
+    # learner_name=state["learner_name"],
+    # preferred_language=state["preferred_language"],
+    #
+    # The "messages" key is then added for this specific agent invocation.
+    # This keeps the structured state and the current user message together.
+    input_state = {
+        **state,
+        "messages": [
+            HumanMessage(
+                content=(
+                    f"Current custom agent state:\n{state_summary}\n\n"
+                    f"User question: {user_message}"
+                )
+            )
+        ],
+    }
+
+    result = agent.invoke(cast(Any, input_state))
+    assistant_message = result["messages"][-1]
+
+    print_section("Call with richer custom AgentState")
+    print_turn("user", user_message)
+    print_turn("state", state_summary)
+    print_turn("assistant", message_content_to_str(assistant_message.content))
 
     print_section("Conclusion")
-    print()
     print(
-        "Custom state lets the program track several structured facts at once. "
-        "This is more useful than storing one isolated value. "
-        "It gives the agent controlled access to the learner's profile, progress, current topic, and last action."
+        "Custom AgentState lets the agent receive several structured fields "
+        "alongside messages. This is more useful than passing one isolated "
+        "value because it can carry profile, progress, current topic, and "
+        "last action in one schema."
     )
 
 
