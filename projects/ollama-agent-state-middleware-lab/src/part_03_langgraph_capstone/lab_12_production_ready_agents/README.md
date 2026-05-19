@@ -71,14 +71,15 @@ uv run python -m src.part_03_langgraph_capstone.lab_12_production_ready_agents.m
 
 ## Expected Behaviour
 
-This lab demonstrates deterministic production controls:
+This lab demonstrates deterministic production controls around a framework-native agent:
 
 - **Step 1**: Valid request adds a learning note via agent
 - **Step 2**: Empty input is blocked BEFORE agent invocation
 - **Step 3**: Unauthorised risky tool is blocked by tool-level authorisation
 - **Step 4**: Authorised completion tool updates progress via agent
 
-The final state shows: `tool_call_count`, `blocked_request_count`, `error_count`, and `last_action`.
+The final state exposes observable execution metrics through:
+`tool_call_count`, `blocked_request_count`, `error_count`, and `last_action`.
 
 ## Learning Point
 
