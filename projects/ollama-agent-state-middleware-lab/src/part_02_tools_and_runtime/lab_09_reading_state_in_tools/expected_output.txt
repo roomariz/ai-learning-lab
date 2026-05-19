@@ -1,5 +1,11 @@
 09 Reading State in Tools
 =========================
+[config] Project root: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab
+[config] .env path: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab\.env
+[config] .env loaded: True
+[config] MODEL_PROVIDER: ollama
+[config] OLLAMA_MODEL: qwen2.5-coder:7b
+[config] OLLAMA_BASE_URL: http://localhost:11434
 
 INITIAL STATE:
 {
@@ -15,13 +21,7 @@ INITIAL STATE:
   "last_action": "started_reading_state_lab",
   "notes": [
     "ToolRuntime groups state and context behind one clean tool interface."
-  ]
-}
-
-RUNTIME CONTEXT:
-{
-  "user_id": "learner-001",
-  "role": "learner",
+  ],
   "authorised_tools": [
     "read_profile",
     "read_progress",
@@ -35,10 +35,30 @@ Step 1: tool reads learner profile
 USER:
 Read my learner profile from state.
 
-TOOL RESULT:
-Learner: Muhammad
-Preferred language: Python
-Role: learner
+EXPECTED TOOL:
+read_profile
+
+STATE AFTER:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution"
+  ],
+  "current_topic": "reading_state_in_tools",
+  "last_action": "started_reading_state_lab",
+  "notes": [
+    "ToolRuntime groups state and context behind one clean tool interface."
+  ],
+  "authorised_tools": [
+    "read_profile",
+    "read_progress",
+    "read_next_topic"
+  ]
+}
 
 Step 2: tool reads learning progress
 ====================================
@@ -46,13 +66,30 @@ Step 2: tool reads learning progress
 USER:
 Read my completed topics from state.
 
-TOOL RESULT:
-Completed topics:
-- custom_state
-- state_persistence
-- tool_state_read_write
-- toolruntime_solution
-Last action: started_reading_state_lab
+EXPECTED TOOL:
+read_progress
+
+STATE AFTER:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution"
+  ],
+  "current_topic": "reading_state_in_tools",
+  "last_action": "started_reading_state_lab",
+  "notes": [
+    "ToolRuntime groups state and context behind one clean tool interface."
+  ],
+  "authorised_tools": [
+    "read_profile",
+    "read_progress",
+    "read_next_topic"
+  ]
+}
 
 Step 3: tool reads current topic
 ================================
@@ -60,8 +97,30 @@ Step 3: tool reads current topic
 USER:
 Read my current topic from state.
 
-TOOL RESULT:
-Current topic: reading_state_in_tools
+EXPECTED TOOL:
+read_next_topic
+
+STATE AFTER:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution"
+  ],
+  "current_topic": "reading_state_in_tools",
+  "last_action": "started_reading_state_lab",
+  "notes": [
+    "ToolRuntime groups state and context behind one clean tool interface."
+  ],
+  "authorised_tools": [
+    "read_profile",
+    "read_progress",
+    "read_next_topic"
+  ]
+}
 
 Step 4: unauthorised read is blocked
 ====================================
@@ -69,8 +128,30 @@ Step 4: unauthorised read is blocked
 USER:
 Try to read private admin notes.
 
-TOOL RESULT:
-Tool blocked: read_private_admin_notes
+EXPECTED TOOL:
+attempt_unauthorised_read
+
+STATE AFTER:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution"
+  ],
+  "current_topic": "reading_state_in_tools",
+  "last_action": "started_reading_state_lab",
+  "notes": [
+    "ToolRuntime groups state and context behind one clean tool interface."
+  ],
+  "authorised_tools": [
+    "read_profile",
+    "read_progress",
+    "read_next_topic"
+  ]
+}
 
 Read-only summary
 =================
@@ -95,10 +176,25 @@ FINAL STATE:
   "last_action": "started_reading_state_lab",
   "notes": [
     "ToolRuntime groups state and context behind one clean tool interface."
+  ],
+  "authorised_tools": [
+    "read_profile",
+    "read_progress",
+    "read_next_topic"
   ]
 }
 
 Conclusion
 ==========
 
-Tools can read state to make informed decisions without changing it. Read-only tools are useful for profile checks, progress checks, permission checks, and routing decisions.
+Tools can read state to make informed decisions without changing it.
+This lab demonstrates read-only access to state through ToolRuntime:
+- @tool decorator registers tools for the agent
+- ToolRuntime is injected by the framework
+- runtime.state reads current state (no writes in this lab)
+- authorised_tools in state controls tool access at runtime
+- MemorySaver + thread_id persist state across invocations
+
+Read-only tools are useful for profile checks, progress checks, permission checks, and routing decisions.
+
+Lab 10 will cover writing state through Command(update={...}).
