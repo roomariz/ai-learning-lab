@@ -195,3 +195,9 @@ Message history
 The model should not be responsible for everything.
 
 Production-style agents need deterministic application controls around the model, including validation, authorisation, controlled state mutation, observability, and error handling.
+
+## Agent build reference
+
+For future labs and agent implementations, follow `docs/stateful_agent_blueprint.md` as the reference pattern.
+
+Use the same `AgentState`, `ToolRuntime`, `Command(update={...})`, `ToolMessage`, `MemorySaver`, thread-based persistence, and clean interactive structure unless there is a clear reason not to.
