@@ -6,27 +6,27 @@ Show the difference between runtime context and agent state.
 
 ## Simple distinction
 
-Context is stable information supplied to a run.
+Context is stable metadata supplied outside `AgentState`.
 
-State is changing information tracked during a run.
+State is changing information tracked inside `AgentState`.
 
 ## Examples
 
 Context:
 
-1. User ID.
-2. Role.
-3. Tenant ID.
-4. Environment.
-5. Authorised tools.
+1. User ID
+2. Role
+3. Tenant ID
+4. Environment
 
 State:
 
-1. Current topic.
-2. Completed topics.
-3. Notes.
-4. Last action.
-5. Tool call count.
+1. Current topic
+2. Completed topics
+3. Notes
+4. Last action
+5. Tool call count
+6. Authorised tools
 
 ## Why this matters
 
@@ -41,30 +41,22 @@ Keeping these separate avoids confusion.
 ## Files in this lab
 
 ```txt
-src/11_context_vs_state/
+src/part_02_tools_and_runtime/lab_11_context_vs_state/
 ├── README.md
-├── main.py
-└── expected_output.txt
+└── main.py
 ```
 
-Run
+## Run
 
 ```bash
-uv run python -m src.11_context_vs_state.main
+uv run python -m src.part_02_tools_and_runtime.lab_11_context_vs_state.main
 ```
 
 ## Expected behaviour
 
-This lab is deterministic and does not call the model.
+The exact assistant/tool-routing behaviour may vary because the agent uses the configured model.
 
-The important behaviour is:
-
-- Context contains stable run information.
-- State contains changing agent information.
-- A context tool reads context.
-- A state tool reads state.
-- A write tool updates state but does not change context.
-- Final context stays the same, while final state changes.
+The important behaviour is verified through the printed context and state after each step.
 
 ## Learning point
 

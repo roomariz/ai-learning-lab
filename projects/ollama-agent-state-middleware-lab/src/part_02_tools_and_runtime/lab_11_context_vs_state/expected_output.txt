@@ -1,18 +1,11 @@
 11 Context vs State
 ===================
-
-INITIAL CONTEXT:
-{
-  "user_id": "learner-001",
-  "role": "learner",
-  "tenant_id": "learning-lab",
-  "environment": "local",
-  "authorised_tools": [
-    "explain_context",
-    "explain_state",
-    "add_state_note"
-  ]
-}
+[config] Project root: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab
+[config] .env path: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab\.env
+[config] .env loaded: True
+[config] MODEL_PROVIDER: ollama
+[config] OLLAMA_MODEL: qwen2.5-coder:7b
+[config] OLLAMA_BASE_URL: http://localhost:11434
 
 INITIAL STATE:
 {
@@ -29,38 +22,39 @@ INITIAL STATE:
   "current_topic": "context_vs_state",
   "last_action": "started_context_vs_state_lab",
   "notes": [
-    "State changes during the agent run."
+    "State changes during conversation; context is stable."
   ],
-  "tool_call_count": 0
+  "tool_call_count": 0,
+  "authorised_tools": [
+    "add_learning_note",
+    "complete_topic",
+    "show_context_info"
+  ]
 }
 
-Step 1: tool reads context
-==========================
-
-USER:
-Explain the runtime context.
-
-TOOL RESULT:
-Context is stable information supplied to this run.
-User ID: learner-001
-Role: learner
-Tenant ID: learning-lab
-Environment: local
-
-CONTEXT:
+RUN CONTEXT (CONSTANT):
 {
   "user_id": "learner-001",
   "role": "learner",
   "tenant_id": "learning-lab",
-  "environment": "local",
-  "authorised_tools": [
-    "explain_context",
-    "explain_state",
-    "add_state_note"
-  ]
+  "environment": "local"
 }
 
-STATE:
+Step 1: tool adds a note (state changes)
+========================================
+
+USER:
+Add a note about distinguishing context from state.
+
+CONTEXT (UNCHANGED):
+{
+  "user_id": "learner-001",
+  "role": "learner",
+  "tenant_id": "learning-lab",
+  "environment": "local"
+}
+
+STATE AFTER:
 {
   "learner_name": "Muhammad",
   "preferred_language": "Python",
@@ -73,70 +67,117 @@ STATE:
     "writing_state_from_tools"
   ],
   "current_topic": "context_vs_state",
-  "last_action": "tool_explained_context",
+  "last_action": "started_context_vs_state_lab",
   "notes": [
-    "State changes during the agent run."
+    "State changes during conversation; context is stable."
   ],
-  "tool_call_count": 1
+  "tool_call_count": 0,
+  "authorised_tools": [
+    "add_learning_note",
+    "complete_topic",
+    "show_context_info"
+  ]
 }
 
-Step 2: tool reads state
+WARNING:
+Note should have been added to state.
+
+Step 2: tool completes topic (state changes)
+============================================
+
+USER:
+Complete the context vs state lab.
+
+CONTEXT (UNCHANGED):
+{
+  "user_id": "learner-001",
+  "role": "learner",
+  "tenant_id": "learning-lab",
+  "environment": "local"
+}
+
+STATE AFTER:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution",
+    "reading_state_in_tools",
+    "writing_state_from_tools"
+  ],
+  "current_topic": "context_vs_state",
+  "last_action": "started_context_vs_state_lab",
+  "notes": [
+    "State changes during conversation; context is stable."
+  ],
+  "tool_call_count": 0,
+  "authorised_tools": [
+    "add_learning_note",
+    "complete_topic",
+    "show_context_info"
+  ]
+}
+
+WARNING:
+Topic should have been completed.
+
+Step 3: tool shows context (state + context displayed)
+======================================================
+
+USER:
+Show me the context information.
+
+CONTEXT (STABLE):
+{
+  "user_id": "learner-001",
+  "role": "learner",
+  "tenant_id": "learning-lab",
+  "environment": "local"
+}
+
+STATE AFTER:
+{
+  "learner_name": "Muhammad",
+  "preferred_language": "Python",
+  "completed_topics": [
+    "custom_state",
+    "state_persistence",
+    "tool_state_read_write",
+    "toolruntime_solution",
+    "reading_state_in_tools",
+    "writing_state_from_tools"
+  ],
+  "current_topic": "context_vs_state",
+  "last_action": "started_context_vs_state_lab",
+  "notes": [
+    "State changes during conversation; context is stable."
+  ],
+  "tool_call_count": 0,
+  "authorised_tools": [
+    "add_learning_note",
+    "complete_topic",
+    "show_context_info"
+  ]
+}
+
+WARNING:
+Context should have been shown.
+
+Context vs State Summary
 ========================
 
-USER:
-Explain the current state.
-
-TOOL RESULT:
-State is changing information tracked during the agent run.
-Learner: Muhammad
-Current topic: context_vs_state
-Completed topics count: 6
-Notes count: 1
-Tool call count: 2
-
-STATE:
-{
-  "learner_name": "Muhammad",
-  "preferred_language": "Python",
-  "completed_topics": [
-    "custom_state",
-    "state_persistence",
-    "tool_state_read_write",
-    "toolruntime_solution",
-    "reading_state_in_tools",
-    "writing_state_from_tools"
-  ],
-  "current_topic": "context_vs_state",
-  "last_action": "tool_explained_state",
-  "notes": [
-    "State changes during the agent run."
-  ],
-  "tool_call_count": 2
-}
-
-Step 3: tool writes state, not context
-======================================
-
-USER:
-Add a note to state.
-
-TOOL RESULT:
-State note added: Context should stay stable while state may change.
-
-CONTEXT:
+CONTEXT (UNCHANGED):
 {
   "user_id": "learner-001",
   "role": "learner",
   "tenant_id": "learning-lab",
-  "environment": "local",
-  "authorised_tools": [
-    "explain_context",
-    "explain_state",
-    "add_state_note"
-  ]
+  "environment": "local"
 }
 
-STATE:
+STATE (CHANGED):
 {
   "learner_name": "Muhammad",
   "preferred_language": "Python",
@@ -149,60 +190,51 @@ STATE:
     "writing_state_from_tools"
   ],
   "current_topic": "context_vs_state",
-  "last_action": "tool_added_state_note",
+  "last_action": "started_context_vs_state_lab",
   "notes": [
-    "State changes during the agent run.",
-    "Context should stay stable while state may change."
+    "State changes during conversation; context is stable."
   ],
-  "tool_call_count": 3
-}
-
-Context vs state summary
-========================
-
-SUMMARY:
-Context and state have different jobs:
-Context: stable run information, such as user_id, role, tenant_id, and environment.
-State: changing agent information, such as current_topic, notes, last_action, and tool_call_count.
-Context role remains: learner
-State last action is now: tool_added_state_note
-State notes count is now: 2
-
-FINAL CONTEXT:
-{
-  "user_id": "learner-001",
-  "role": "learner",
-  "tenant_id": "learning-lab",
-  "environment": "local",
+  "tool_call_count": 0,
   "authorised_tools": [
-    "explain_context",
-    "explain_state",
-    "add_state_note"
+    "add_learning_note",
+    "complete_topic",
+    "show_context_info"
   ]
 }
 
-FINAL STATE:
-{
-  "learner_name": "Muhammad",
-  "preferred_language": "Python",
-  "completed_topics": [
-    "custom_state",
-    "state_persistence",
-    "tool_state_read_write",
-    "toolruntime_solution",
-    "reading_state_in_tools",
-    "writing_state_from_tools"
-  ],
-  "current_topic": "context_vs_state",
-  "last_action": "tool_added_state_note",
-  "notes": [
-    "State changes during the agent run.",
-    "Context should stay stable while state may change."
-  ],
-  "tool_call_count": 3
-}
+EXPLANATION:
+Context vs State distinction:
+CONTEXT (stable, constant):
+  {'user_id': 'learner-001', 'role': 'learner', 'tenant_id': 'learning-lab', 'environment': 'local'}
+
+STATE (mutable, changes):
+  learner_name: Muhammad
+  current_topic: context_vs_state
+  tool_call_count: 0
+  notes: 1
+  completed_topics: 6
 
 Conclusion
 ==========
 
-Context is stable information supplied to the run. State is information that changes as the agent works. Keeping them separate makes tools easier to reason about.
+Context vs State distinction:
+
+STATE (AgentState) - Mutable:
+- Changes during conversation
+- Fields: learner_name, notes, current_topic, tool_call_count
+- Tools modify via Command(update={...})
+- Access via runtime.state in tools
+
+CONTEXT (RUN_CONTEXT) - Stable:
+- Constant throughout the run
+- Fields: user_id, role, tenant_id, environment
+- Passed separately to seed prompts
+- Not automatically in runtime.state
+
+Key insight:
+  state = changing data (in AgentState)
+  context = stable run metadata (separate dict)
+
+Lab 09: read state
+Lab 10: write state
+Lab 11: distinguish mutable state from stable context
