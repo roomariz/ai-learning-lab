@@ -1,6 +1,23 @@
+from langchain_ollama import ChatOllama
+
 from src.common.config import load_config
 from src.common.model import get_chat_model
 from src.common.printer import print_section, print_turn
+
+
+def message_content_to_str(content: object) -> str:
+    if isinstance(content, str):
+        return content
+    return str(content)
+
+
+def invoke_model(model: ChatOllama, messages: list[tuple[str, str]]) -> str:
+    try:
+        response = model.invoke(messages)
+    except Exception:
+        return "Model call failed safely. Check your local model configuration."
+
+    return message_content_to_str(response.content)
 
 
 def main() -> None:
@@ -33,11 +50,12 @@ def main() -> None:
         ),
     ]
 
-    response = model.invoke(messages)
+    assistant_message = invoke_model(model, messages)
 
     print_section("Provider check")
+    print_turn("provider summary", provider_summary)
     print_turn("user", user_message)
-    print_turn("assistant", response.content)
+    print_turn("assistant", assistant_message)
 
     print_section("Conclusion")
     print()

@@ -1,8 +1,7 @@
 04 Model Provider Setup
 =======================
-
-[config] Project root: ...
-[config] .env path: ...
+[config] Project root: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab
+[config] .env path: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab\.env
 [config] .env loaded: True
 [config] MODEL_PROVIDER: ollama
 [config] OLLAMA_MODEL: qwen2.5-coder:7b
@@ -11,12 +10,16 @@
 Provider check
 ==============
 
+PROVIDER SUMMARY:
+Current provider: ollama
+Ollama model: qwen2.5-coder:7b
+Ollama base URL: http://localhost:11434
+
 USER:
 Which model provider is this project currently using?
 
 ASSISTANT:
-The assistant should confirm that the project is currently using the Ollama model provider.
-The exact wording may vary by local model.
+This project is currently using the Ollama model provider.
 
 Conclusion
 ==========
