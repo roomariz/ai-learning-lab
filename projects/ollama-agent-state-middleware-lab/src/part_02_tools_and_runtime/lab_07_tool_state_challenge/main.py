@@ -1,10 +1,14 @@
 import json
-from typing import TypedDict
+from typing import Any
 
+from langchain.agents import AgentState
 from src.common.printer import print_section, print_turn
 
 
-class ChallengeState(TypedDict):
+# ChallengeState keeps the schema aligned with earlier AgentState labs.
+# This lab still passes state manually on purpose to expose the problem
+# that ToolRuntime solves in the next lab.
+class ChallengeState(AgentState):
     learner_name: str
     preferred_language: str
     completed_topics: list[str]
@@ -15,8 +19,20 @@ class ChallengeState(TypedDict):
     authorised_tools: list[str]
 
 
-def create_initial_state() -> ChallengeState:
+# Bad pattern shown in this lab:
+# Each tool receives the whole state manually, checks permissions manually,
+# updates counters manually, and mutates the dictionary directly.
+#
+# Best pattern shown in later labs:
+# Tools receive ToolRuntime from the framework, read state through runtime.state,
+# and update state by returning Command(update={...}) with a ToolMessage.
+#
+# This lab keeps the bad pattern on purpose so the benefit of ToolRuntime is clear.
+
+
+def create_initial_state() -> dict[str, Any]:
     return {
+        "messages": [],
         "learner_name": "Muhammad",
         "preferred_language": "Python",
         "completed_topics": [
@@ -35,11 +51,14 @@ def create_initial_state() -> ChallengeState:
     }
 
 
-def format_state(state: ChallengeState) -> str:
+def format_state(state: dict[str, Any]) -> str:
     return json.dumps(state, indent=2)
 
 
-def check_tool_authorisation(state: ChallengeState, tool_name: str) -> bool:
+# Repetition warning:
+# In this manual pattern, every tool must remember to call this helper.
+# If one tool forgets, the authorisation rule is silently bypassed.
+def check_tool_authorisation(state: dict[str, Any], tool_name: str) -> bool:
     """
     Repeated helper required by every tool.
 
@@ -49,7 +68,10 @@ def check_tool_authorisation(state: ChallengeState, tool_name: str) -> bool:
     return tool_name in state["authorised_tools"]
 
 
-def increment_tool_count(state: ChallengeState) -> ChallengeState:
+# Repetition warning:
+# In this manual pattern, every tool must remember to update bookkeeping.
+# If one tool forgets, observability becomes inaccurate.
+def increment_tool_count(state: dict[str, Any]) -> dict[str, Any]:
     """
     Repeated helper required by every tool.
 
@@ -60,7 +82,7 @@ def increment_tool_count(state: ChallengeState) -> ChallengeState:
     return state
 
 
-def read_learning_status_tool(state: ChallengeState) -> str:
+def read_learning_status_tool(state: dict[str, Any]) -> str:
     tool_name = "read_learning_status"
 
     if not check_tool_authorisation(state, tool_name):
@@ -79,7 +101,7 @@ def read_learning_status_tool(state: ChallengeState) -> str:
     )
 
 
-def add_learning_note_tool(state: ChallengeState, note: str) -> ChallengeState:
+def add_learning_note_tool(state: dict[str, Any], note: str) -> dict[str, Any]:
     tool_name = "add_learning_note"
 
     if not check_tool_authorisation(state, tool_name):
@@ -94,7 +116,7 @@ def add_learning_note_tool(state: ChallengeState, note: str) -> ChallengeState:
     return state
 
 
-def complete_topic_tool(state: ChallengeState, topic: str) -> ChallengeState:
+def complete_topic_tool(state: dict[str, Any], topic: str) -> dict[str, Any]:
     tool_name = "complete_topic"
 
     if not check_tool_authorisation(state, tool_name):
@@ -112,7 +134,7 @@ def complete_topic_tool(state: ChallengeState, topic: str) -> ChallengeState:
     return state
 
 
-def run_authorised_read_step(state: ChallengeState) -> None:
+def run_authorised_read_step(state: dict[str, Any]) -> None:
     user_message = "Read my learning status with an authorised tool."
     tool_result = read_learning_status_tool(state)
 
@@ -122,7 +144,7 @@ def run_authorised_read_step(state: ChallengeState) -> None:
     print_turn("state", format_state(state))
 
 
-def run_authorised_write_step(state: ChallengeState) -> ChallengeState:
+def run_authorised_write_step(state: dict[str, Any]) -> dict[str, Any]:
     user_message = "Add a note with an authorised tool."
     note = "Manual state passing works, but every tool must receive and update state carefully."
 
@@ -136,7 +158,7 @@ def run_authorised_write_step(state: ChallengeState) -> ChallengeState:
     return state
 
 
-def run_blocked_tool_step(state: ChallengeState) -> ChallengeState:
+def run_blocked_tool_step(state: dict[str, Any]) -> dict[str, Any]:
     user_message = "Try to complete the current topic with an unauthorised tool."
 
     state = complete_topic_tool(state, "tool_state_challenge")
@@ -148,7 +170,7 @@ def run_blocked_tool_step(state: ChallengeState) -> ChallengeState:
     return state
 
 
-def run_challenge_summary(state: ChallengeState) -> None:
+def run_challenge_summary(state: dict[str, Any]) -> None:
     summary = (
         "Manual state passing creates repeated responsibilities:\n"
         "1. Each tool must receive the state argument.\n"
@@ -179,7 +201,9 @@ def main() -> None:
     print()
     print(
         "Manual state passing is useful for learning, but it does not scale well. "
-        "The next lab introduces a runtime-style object so tools can access state through a cleaner interface."
+        "Repeated authorisation checks, bookkeeping updates, and direct mutation "
+        "make tools noisy and fragile. The next lab introduces ToolRuntime so "
+        "tools can access shared state through a cleaner framework-managed interface."
     )
 
 

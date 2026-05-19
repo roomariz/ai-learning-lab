@@ -3,6 +3,7 @@
 
 INITIAL STATE:
 {
+  "messages": [],
   "learner_name": "Muhammad",
   "preferred_language": "Python",
   "completed_topics": [
@@ -35,6 +36,7 @@ Tool call count: 1
 
 STATE:
 {
+  "messages": [],
   "learner_name": "Muhammad",
   "preferred_language": "Python",
   "completed_topics": [
@@ -63,6 +65,7 @@ Manual state passing works, but every tool must receive and update state careful
 
 STATE:
 {
+  "messages": [],
   "learner_name": "Muhammad",
   "preferred_language": "Python",
   "completed_topics": [
@@ -90,6 +93,7 @@ Try to complete the current topic with an unauthorised tool.
 
 STATE:
 {
+  "messages": [],
   "learner_name": "Muhammad",
   "preferred_language": "Python",
   "completed_topics": [
@@ -122,6 +126,7 @@ Manual state passing creates repeated responsibilities:
 
 FINAL STATE:
 {
+  "messages": [],
   "learner_name": "Muhammad",
   "preferred_language": "Python",
   "completed_topics": [
@@ -144,4 +149,4 @@ FINAL STATE:
 Conclusion
 ==========
 
-Manual state passing is useful for learning, but it does not scale well. The next lab introduces a runtime-style object so tools can access state through a cleaner interface.
+Manual state passing is useful for learning, but it does not scale well. Repeated authorisation checks, bookkeeping updates, and direct mutation make tools noisy and fragile. The next lab introduces ToolRuntime so tools can access shared state through a cleaner framework-managed interface.
