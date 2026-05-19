@@ -4,6 +4,21 @@ from src.common.model import get_chat_model
 from src.common.printer import print_section, print_turn
 
 
+def message_content_to_str(content: object) -> str:
+    if isinstance(content, str):
+        return content
+    return str(content)
+
+
+def invoke_model(model: ChatOllama, messages: list[tuple[str, str]]) -> str:
+    try:
+        response = model.invoke(messages)
+    except Exception:
+        return "Model call failed safely. Check your local model configuration."
+
+    return message_content_to_str(response.content)
+
+
 def run_first_call(model: ChatOllama) -> None:
     messages = [
         (
@@ -17,11 +32,11 @@ def run_first_call(model: ChatOllama) -> None:
         ),
     ]
 
-    response = model.invoke(messages)
-
     print_section("Call 1: user shares a preference")
     print_turn("user", messages[-1][1])
-    print_turn("assistant", response.content)
+
+    assistant_message = invoke_model(model, messages)
+    print_turn("assistant", assistant_message)
 
 
 def run_second_call_without_history(model: ChatOllama) -> None:
@@ -37,11 +52,11 @@ def run_second_call_without_history(model: ChatOllama) -> None:
         ),
     ]
 
-    response = model.invoke(messages)
-
     print_section("Call 2: fresh call without previous messages")
     print_turn("user", messages[-1][1])
-    print_turn("assistant", response.content)
+
+    assistant_message = invoke_model(model, messages)
+    print_turn("assistant", assistant_message)
 
 
 def main() -> None:
@@ -56,7 +71,8 @@ def main() -> None:
     print(
         "The second call does not include the first message. "
         "The model therefore has no reliable way to know the user's preference. "
-        "This is the core limitation of messages-only memory."
+        "This is the core limitation of isolated message calls: "
+        "the model only sees the messages passed into the current invocation."
     )
 
 

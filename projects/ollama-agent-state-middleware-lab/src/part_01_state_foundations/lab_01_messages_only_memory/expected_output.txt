@@ -30,4 +30,4 @@ The exact wording may vary by local model.
 Conclusion
 ==========
 
-The second call does not include the first message. The model therefore has no reliable way to know the user's preference. This is the core limitation of messages-only memory.
+The second call does not include the first message. The model therefore has no reliable way to know the user's preference. This is the core limitation of isolated message calls: the model only sees the messages passed into the current invocation.
