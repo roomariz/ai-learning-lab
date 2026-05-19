@@ -35,18 +35,17 @@ State persists across conversation turns through the checkpointer. Using the
 same thread_id, the agent remembers all changes made to state.
 """
 
-import os
 import warnings
-from typing import Literal
+from typing import Any, Literal
 
 from langchain.agents import AgentState, create_agent
 from langchain.tools import ToolRuntime, tool
 from langchain_core.messages import ToolMessage
 from langchain_core.runnables import RunnableConfig
-from langchain_ollama import ChatOllama
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.types import Command
 
+from src.common.model import get_chat_model
 from src.common.printer import print_section
 
 # Ignore warnings to clearly see the output from cells
@@ -75,7 +74,7 @@ class BugState(AgentState):
 
 
 # Helper function to create the initial state with default values
-def initial_state() -> BugState:
+def initial_state() -> dict[str, Any]:
     return {
         "messages": [],
         "learner_name": "Muhammad",
@@ -319,14 +318,8 @@ SYSTEM_PROMPT = """
                 """
 
 
-def build_agent():
-    # Create the Ollama model (similar to ChatOpenAI but local)
-    model_name = os.getenv("OLLAMA_MODEL", "llama3.1:latest")
-
-    model = ChatOllama(
-        model=model_name,
-        temperature=0,
-    )
+def build_agent() -> Any:
+    model = get_chat_model()
 
     # create_agent combines model, tools, state schema, and persistence.
     # - model: The LLM that drives agent decisions
@@ -345,41 +338,11 @@ def build_agent():
         ],
         state_schema=BugState,  # Our custom state schema
         checkpointer=MemorySaver(),  # Persists state with thread_id
-        system_prompt=SYSTEM_PROMPT,  # System prompt for agent behavior
+        system_prompt=SYSTEM_PROMPT,  # System prompt for agent behaviour
     )
 
 
-# Optional legacy helper retained for future scripted demos.
-# It is not used by the current interactive lab.
-def stream_and_print(agent, message: str, config: RunnableConfig) -> None:
-    print(f"\nUSER: {message}")
-    print("Agent:")
-
-    tool_outputs = []
-    final_response = None
-
-    for chunk in agent.stream(
-        {"messages": [{"role": "user", "content": message}]},
-        config=config,
-        stream_mode="values",
-    ):
-        messages = chunk.get("messages", [])
-        if messages:
-            for msg in messages:
-                if isinstance(msg, ToolMessage):
-                    tool_outputs.append(msg.content)
-            final_response = messages[-1]
-
-    if tool_outputs:
-        for output in dict.fromkeys(tool_outputs):  # remove duplicates
-            print(output)
-    elif final_response:
-        print(final_response.content)
-    else:
-        print("[No response]")
-
-
-def chat(agent, message: str, config: RunnableConfig):
+def chat(agent: Any, message: str, config: RunnableConfig) -> Any:
     """Helper function to chat with the agent."""
     # Only inspect messages created during this turn, so old ToolMessages are not repeated.
     state_before = agent.get_state(config)
@@ -387,7 +350,7 @@ def chat(agent, message: str, config: RunnableConfig):
 
     result = agent.invoke(
         {"messages": [{"role": "user", "content": message}]},
-        config=config
+        config=config,
     )
 
     messages = result["messages"]
@@ -411,7 +374,7 @@ def chat(agent, message: str, config: RunnableConfig):
 
 
 def main() -> None:
-    print_section("13 Bug Tracker Agent with LangGraph")
+    print_section("13 LangGraph Bug Tracker Capstone")
 
     print("Full framework version using:")
     print("- create_agent")
@@ -420,7 +383,7 @@ def main() -> None:
     print("- Command(update={...})")
     print("- ToolMessage")
     print("- MemorySaver")
-    print("- ChatOllama")
+    print("- get_chat_model()")
     print()
 
     # Build the agent with custom state schema
@@ -460,7 +423,9 @@ def main() -> None:
     while True:
         user_input = input("\nYou: ")
         if user_input.lower() in ["quit", "exit", "q"]:
+            final_state = agent.get_state(config).values
             print("Goodbye!")
+            print(f"Final bugs: {final_state.get('bugs', [])}")
             break
         if user_input.strip():
             chat(agent, user_input, config)

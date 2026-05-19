@@ -8,7 +8,7 @@ Introduce a bug tracking pattern using LangGraph-style state. The agent can crea
 
 Lab 12 placed production controls directly inside the request flow.
 
-This lab focuses on a different layer: how the agent tracks and manages persistent data using typed state and runtime-style tools.
+This lab shifts from production controls into applied state-driven workflows.
 
 ## Lab overview
 
@@ -54,18 +54,18 @@ Reopens a resolved bug by setting `resolved` back to `False`.
 
 ## Why this matters
 
-Bug tracking is a real engineering workflow. It naturally maps to state mutation:
+Bug tracking is a natural example of state mutation:
 
-- Create adds to a collection.
-- Resolve marks a flag.
-- Reopen flips the flag back.
+- Create adds structured data.
+- Resolve updates workflow state.
+- Reopen reverses a previous state transition.
 
-LangGraph's `Command(update={...})` pattern makes these mutations explicit and traceable.
+LangGraph's `Command(update={...})` pattern makes these state transitions explicit, traceable, and persistent across conversation turns.
 
 ## Files in this lab
 
 ```txt
-src/13_bug_tracker_agent_langgraph/
+src/part_03_langgraph_capstone/lab_13_bug_tracker_agent_langgraph/
 ├── README.md
 ├── main.py
 └── expected_output.txt
