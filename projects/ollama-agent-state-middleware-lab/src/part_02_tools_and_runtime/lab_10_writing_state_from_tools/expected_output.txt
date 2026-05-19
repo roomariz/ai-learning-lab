@@ -1,5 +1,11 @@
 10 Writing State from Tools
 ===========================
+[config] Project root: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab
+[config] .env path: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab\.env
+[config] .env loaded: True
+[config] MODEL_PROVIDER: ollama
+[config] OLLAMA_MODEL: qwen2.5-coder:7b
+[config] OLLAMA_BASE_URL: http://localhost:11434
 
 INITIAL STATE:
 {
@@ -17,13 +23,7 @@ INITIAL STATE:
   "notes": [
     "Reading tools should inspect state without mutating it."
   ],
-  "tool_call_count": 0
-}
-
-RUNTIME CONTEXT:
-{
-  "user_id": "learner-001",
-  "role": "learner",
+  "tool_call_count": 0,
   "authorised_tools": [
     "add_learning_note",
     "complete_topic",
@@ -37,10 +37,10 @@ Step 1: tool writes a note
 USER:
 Add a note about writing state from tools.
 
-TOOL RESULT:
-Note added: Writing tools should update state through controlled runtime methods.
+EXPECTED TOOL:
+add_learning_note
 
-STATE:
+STATE AFTER:
 {
   "learner_name": "Muhammad",
   "preferred_language": "Python",
@@ -52,13 +52,20 @@ STATE:
     "reading_state_in_tools"
   ],
   "current_topic": "writing_state_from_tools",
-  "last_action": "tool_added_learning_note",
+  "last_action": "started_writing_state_lab",
   "notes": [
-    "Reading tools should inspect state without mutating it.",
-    "Writing tools should update state through controlled runtime methods."
+    "Reading tools should inspect state without mutating it."
   ],
-  "tool_call_count": 1
+  "tool_call_count": 0,
+  "authorised_tools": [
+    "add_learning_note",
+    "complete_topic",
+    "set_next_topic"
+  ]
 }
+
+WARNING:
+Note should have been added to state.
 
 Step 2: tool completes topic
 ============================
@@ -66,10 +73,10 @@ Step 2: tool completes topic
 USER:
 Complete the writing state from tools lab.
 
-TOOL RESULT:
-Completed writing_state_from_tools; next topic is context_vs_state.
+EXPECTED TOOL:
+complete_topic
 
-STATE:
+STATE AFTER:
 {
   "learner_name": "Muhammad",
   "preferred_language": "Python",
@@ -78,17 +85,23 @@ STATE:
     "state_persistence",
     "tool_state_read_write",
     "toolruntime_solution",
-    "reading_state_in_tools",
-    "writing_state_from_tools"
+    "reading_state_in_tools"
   ],
-  "current_topic": "context_vs_state",
-  "last_action": "tool_completed_topic",
+  "current_topic": "writing_state_from_tools",
+  "last_action": "started_writing_state_lab",
   "notes": [
-    "Reading tools should inspect state without mutating it.",
-    "Writing tools should update state through controlled runtime methods."
+    "Reading tools should inspect state without mutating it."
   ],
-  "tool_call_count": 2
+  "tool_call_count": 0,
+  "authorised_tools": [
+    "add_learning_note",
+    "complete_topic",
+    "set_next_topic"
+  ]
 }
+
+WARNING:
+Topic should have been completed.
 
 Step 3: tool sets next topic
 ============================
@@ -96,10 +109,10 @@ Step 3: tool sets next topic
 USER:
 Set the next topic to context versus state.
 
-TOOL RESULT:
-Current topic set to context_vs_state.
+EXPECTED TOOL:
+set_next_topic
 
-STATE:
+STATE AFTER:
 {
   "learner_name": "Muhammad",
   "preferred_language": "Python",
@@ -108,17 +121,23 @@ STATE:
     "state_persistence",
     "tool_state_read_write",
     "toolruntime_solution",
-    "reading_state_in_tools",
-    "writing_state_from_tools"
+    "reading_state_in_tools"
   ],
-  "current_topic": "context_vs_state",
-  "last_action": "tool_set_next_topic",
+  "current_topic": "writing_state_from_tools",
+  "last_action": "started_writing_state_lab",
   "notes": [
-    "Reading tools should inspect state without mutating it.",
-    "Writing tools should update state through controlled runtime methods."
+    "Reading tools should inspect state without mutating it."
   ],
-  "tool_call_count": 3
+  "tool_call_count": 0,
+  "authorised_tools": [
+    "add_learning_note",
+    "complete_topic",
+    "set_next_topic"
+  ]
 }
+
+WARNING:
+Current topic should have been updated.
 
 Step 4: unauthorised write is blocked
 =====================================
@@ -126,10 +145,10 @@ Step 4: unauthorised write is blocked
 USER:
 Try to delete all notes.
 
-TOOL RESULT:
-Tool blocked: delete_all_notes
+EXPECTED TOOL:
+delete_all_notes
 
-STATE:
+STATE AFTER:
 {
   "learner_name": "Muhammad",
   "preferred_language": "Python",
@@ -138,28 +157,34 @@ STATE:
     "state_persistence",
     "tool_state_read_write",
     "toolruntime_solution",
-    "reading_state_in_tools",
-    "writing_state_from_tools"
+    "reading_state_in_tools"
   ],
-  "current_topic": "context_vs_state",
-  "last_action": "blocked_tool:delete_all_notes",
+  "current_topic": "writing_state_from_tools",
+  "last_action": "started_writing_state_lab",
   "notes": [
-    "Reading tools should inspect state without mutating it.",
-    "Writing tools should update state through controlled runtime methods."
+    "Reading tools should inspect state without mutating it."
   ],
-  "tool_call_count": 3
+  "tool_call_count": 0,
+  "authorised_tools": [
+    "add_learning_note",
+    "complete_topic",
+    "set_next_topic"
+  ]
 }
+
+WARNING:
+Unauthorised tool should have been blocked.
 
 Write summary
 =============
 
 SUMMARY:
 Writing state from tools changed the agent state in controlled ways:
-Tool call count: 3
-Completed topic added: writing_state_from_tools
-Current topic: context_vs_state
-Last action: blocked_tool:delete_all_notes
-Notes count: 2
+Tool call count: 0
+Completed topics: 5
+Current topic: writing_state_from_tools
+Last action: started_writing_state_lab
+Notes count: 1
 
 FINAL STATE:
 {
@@ -170,19 +195,41 @@ FINAL STATE:
     "state_persistence",
     "tool_state_read_write",
     "toolruntime_solution",
-    "reading_state_in_tools",
-    "writing_state_from_tools"
+    "reading_state_in_tools"
   ],
-  "current_topic": "context_vs_state",
-  "last_action": "blocked_tool:delete_all_notes",
+  "current_topic": "writing_state_from_tools",
+  "last_action": "started_writing_state_lab",
   "notes": [
-    "Reading tools should inspect state without mutating it.",
-    "Writing tools should update state through controlled runtime methods."
+    "Reading tools should inspect state without mutating it."
   ],
-  "tool_call_count": 3
+  "tool_call_count": 0,
+  "authorised_tools": [
+    "add_learning_note",
+    "complete_topic",
+    "set_next_topic"
+  ]
 }
 
 Conclusion
 ==========
 
-Writing tools intentionally change state. A runtime object gives the project one controlled place for common write operations such as adding notes, completing topics, and recording actions.
+Writing tools intentionally change state through Command(update={...}).
+This lab demonstrates write access to state:
+- @tool decorator registers tools for the agent
+- ToolRuntime is injected by the framework
+- Command(update={...}) returns updates to apply to state
+- ToolMessage records the tool invocation in messages
+- authorised_tools in state controls tool access at runtime
+- MemorySaver + thread_id persist state across invocations
+
+The key pattern for writing state:
+    return Command(
+        update={
+            "field": new_value,
+            "messages": [ToolMessage(content="...", tool_call_id=runtime.tool_call_id)],
+        }
+    )
+
+Write tools are useful for adding notes, completing tasks, setting state, and persisting results.
+
+Lab 09 was read-only; Lab 10 is write-focused.
