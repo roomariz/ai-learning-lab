@@ -1,11 +1,50 @@
-import json
-from dataclasses import dataclass
-from typing import TypedDict
+"""
+Lab 12: Production-Ready Agents
 
+This lab demonstrates production controls around framework-native LangGraph agents.
+
+Key concepts:
+- AgentState: Define structured state with type annotations
+- create_agent: Creates an agent with tools and state schema
+- @tool: Decorator that registers tools for the agent
+- ToolRuntime: Framework-injected runtime for state access
+- Command(update={...}): Return value to update state atomically
+- ToolMessage: Message to communicate tool results to the agent
+- MemorySaver + thread_id: State persistence across invocations
+- RunnableConfig: Configuration for agent invocation
+
+Production controls added:
+- Input validation before invoking the agent (deterministic, not prompt-only)
+- Tool authorisation inside tools (checked at runtime)
+- blocked_request_count in state (observability)
+- error_count in state (observability)
+- tool_call_count in state (observability)
+- Deterministic summary at the end
+
+Lab sequence:
+- Lab 09 = read state
+- Lab 10 = write state
+- Lab 11 = context vs state
+- Lab 12 = production controls around framework-native agents
+"""
+
+import json
+from typing import Any, cast
+
+from langchain.agents import AgentState, create_agent
+from langchain.tools import ToolRuntime, tool
+from langchain_core.messages import HumanMessage, ToolMessage
+from langchain_core.runnables import RunnableConfig
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.types import Command
+
+from src.common.model import get_chat_model
 from src.common.printer import print_section, print_turn
 
 
-class ProductionState(TypedDict):
+class ProductionState(AgentState):
+    """State for production-ready agents with observability fields."""
+
     learner_name: str
     current_topic: str
     completed_topics: list[str]
@@ -14,45 +53,13 @@ class ProductionState(TypedDict):
     tool_call_count: int
     blocked_request_count: int
     error_count: int
-
-
-class ProductionContext(TypedDict):
-    user_id: str
-    role: str
-    environment: str
     authorised_tools: list[str]
-    max_input_length: int
 
 
-# ProductionRuntime combines state and context with observability.
-# Production agents need deterministic controls (validation, auth, error handling)
-# around the model to make behaviour safer and easier to debug.
-@dataclass
-class ProductionRuntime:
-    state: ProductionState
-    context: ProductionContext
-
-    def record_action(self, action: str) -> None:
-        self.state["last_action"] = action
-
-    def record_tool_call(self, action: str) -> None:
-        self.state["tool_call_count"] += 1
-        self.state["last_action"] = action
-
-    def record_blocked_request(self, action: str) -> None:
-        self.state["blocked_request_count"] += 1
-        self.state["last_action"] = action
-
-    def record_error(self, action: str) -> None:
-        self.state["error_count"] += 1
-        self.state["last_action"] = action
-
-    def is_tool_authorised(self, tool_name: str) -> bool:
-        return tool_name in self.context["authorised_tools"]
-
-
-def create_state() -> ProductionState:
+def create_initial_state() -> dict[str, Any]:
+    """Create the initial state for the production agent."""
     return {
+        "messages": [],
         "learner_name": "Muhammad",
         "current_topic": "production_ready_agents",
         "completed_topics": [
@@ -69,201 +76,411 @@ def create_state() -> ProductionState:
         "tool_call_count": 0,
         "blocked_request_count": 0,
         "error_count": 0,
-    }
-
-
-def create_context() -> ProductionContext:
-    return {
-        "user_id": "learner-001",
-        "role": "learner",
-        "environment": "local",
         "authorised_tools": [
             "add_learning_note",
             "complete_topic",
         ],
-        "max_input_length": 120,
     }
 
 
-def format_json(data: ProductionState | ProductionContext) -> str:
-    return json.dumps(data, indent=2)
+def format_state_fields(state: dict[str, Any]) -> str:
+    """Format state fields for display."""
+    return json.dumps(
+        {
+            "learner_name": state.get("learner_name"),
+            "current_topic": state.get("current_topic"),
+            "completed_topics": state.get("completed_topics"),
+            "last_action": state.get("last_action"),
+            "notes": state.get("notes", []),
+            "tool_call_count": state.get("tool_call_count", 0),
+            "blocked_request_count": state.get("blocked_request_count", 0),
+            "error_count": state.get("error_count", 0),
+            "authorised_tools": state.get("authorised_tools", []),
+        },
+        indent=2,
+    )
 
 
-def validate_input(runtime: ProductionRuntime, user_input: str) -> str | None:
+def invoke_agent(agent: Any, message: str, config: RunnableConfig) -> dict[str, Any]:
+    """Invoke the agent with a user message and return the result."""
+    result = {}
+    for chunk in agent.stream(
+        cast(Any, {"messages": [HumanMessage(content=message)]}),
+        config=config,
+        stream_mode="values",
+    ):
+        result = chunk
+    return result
+
+
+def latest_message_to_str(state: dict[str, Any]) -> str:
+    """Extract the latest message content as a string."""
+    messages = state.get("messages", [])
+    if not messages:
+        return "No response"
+
+    latest_message = messages[-1]
+    content = getattr(latest_message, "content", latest_message)
+    return content if isinstance(content, str) else str(content)
+
+
+# Production control:
+# Input validation happens before the agent is invoked.
+# This keeps basic safety checks deterministic instead of relying on prompts.
+def validate_input(user_input: str, max_input_length: int) -> str | None:
+    """Validate input before agent invocation. Returns error message if blocked."""
     if not user_input.strip():
-        runtime.record_blocked_request("blocked_empty_input")
         return "Input blocked: message is empty."
 
-    if len(user_input) > runtime.context["max_input_length"]:
-        runtime.record_blocked_request("blocked_input_too_long")
-        return "Input blocked: message is too long."
+    if len(user_input) > max_input_length:
+        return f"Input blocked: message is too long (max {max_input_length} chars)."
 
     return None
 
 
-def require_tool_authorisation(
-    runtime: ProductionRuntime,
-    tool_name: str,
-) -> str | None:
-    if not runtime.is_tool_authorised(tool_name):
-        runtime.record_blocked_request(f"blocked_tool:{tool_name}")
-        return f"Tool blocked: {tool_name}"
-
-    return None
+def is_tool_authorised(runtime: ToolRuntime, tool_name: str) -> bool:
+    """Check if a tool is authorised to run based on state."""
+    return tool_name in runtime.state.get("authorised_tools", [])
 
 
-def add_learning_note_tool(runtime: ProductionRuntime, note: str) -> str:
+@tool
+def add_learning_note(note: str, runtime: ToolRuntime) -> Command:
+    """Add a note to the learning state."""
     tool_name = "add_learning_note"
 
-    blocked_reason = require_tool_authorisation(runtime, tool_name)
-    if blocked_reason is not None:
-        return blocked_reason
+    if not is_tool_authorised(runtime, tool_name):
+        blocked_count = runtime.state.get("blocked_request_count", 0)
+        return Command(
+            update={
+                "blocked_request_count": blocked_count + 1,
+                "last_action": f"blocked_tool:{tool_name}",
+                "messages": [
+                    ToolMessage(
+                        content=f"Tool blocked: {tool_name} not authorised",
+                        tool_call_id=runtime.tool_call_id,
+                    )
+                ],
+            }
+        )
 
-    runtime.state["notes"].append(note)
-    runtime.record_tool_call("tool_added_learning_note")
+    notes = runtime.state.get("notes", [])
+    updated_notes = notes + [note]
+    tool_call_count = runtime.state.get("tool_call_count", 0) + 1
 
-    return f"Note added: {note}"
+    return Command(
+        update={
+            "notes": updated_notes,
+            "tool_call_count": tool_call_count,
+            "last_action": "tool_added_learning_note",
+            "messages": [
+                ToolMessage(
+                    content=f"Note added: {note}",
+                    tool_call_id=runtime.tool_call_id,
+                )
+            ],
+        }
+    )
 
 
-def complete_topic_tool(
-    runtime: ProductionRuntime,
-    topic: str,
-    next_topic: str,
-) -> str:
+@tool
+def complete_topic(topic: str, next_topic: str, runtime: ToolRuntime) -> Command:
+    """Mark a topic as completed and advance to the next topic."""
     tool_name = "complete_topic"
 
-    blocked_reason = require_tool_authorisation(runtime, tool_name)
-    if blocked_reason is not None:
-        return blocked_reason
+    if not is_tool_authorised(runtime, tool_name):
+        blocked_count = runtime.state.get("blocked_request_count", 0)
+        return Command(
+            update={
+                "blocked_request_count": blocked_count + 1,
+                "last_action": f"blocked_tool:{tool_name}",
+                "messages": [
+                    ToolMessage(
+                        content=f"Tool blocked: {tool_name} not authorised",
+                        tool_call_id=runtime.tool_call_id,
+                    )
+                ],
+            }
+        )
 
-    if topic not in runtime.state["completed_topics"]:
-        runtime.state["completed_topics"].append(topic)
+    completed_topics = runtime.state.get("completed_topics", [])
+    updated_completed = (
+        completed_topics + [topic]
+        if topic not in completed_topics
+        else completed_topics
+    )
+    tool_call_count = runtime.state.get("tool_call_count", 0) + 1
 
-    runtime.state["current_topic"] = next_topic
-    runtime.record_tool_call("tool_completed_topic")
+    return Command(
+        update={
+            "completed_topics": updated_completed,
+            "current_topic": next_topic,
+            "tool_call_count": tool_call_count,
+            "last_action": "tool_completed_topic",
+            "messages": [
+                ToolMessage(
+                    content=f"Completed topic: {topic}",
+                    tool_call_id=runtime.tool_call_id,
+                )
+            ],
+        }
+    )
 
-    return f"Completed {topic}; next topic is {next_topic}."
 
-
-def risky_tool(runtime: ProductionRuntime) -> str:
+@tool
+def risky_tool(runtime: ToolRuntime) -> Command:
+    """Simulate a risky production tool that should be blocked."""
     tool_name = "risky_tool"
 
-    blocked_reason = require_tool_authorisation(runtime, tool_name)
-    if blocked_reason is not None:
-        return blocked_reason
+    if not is_tool_authorised(runtime, tool_name):
+        blocked_count = runtime.state.get("blocked_request_count", 0)
+        return Command(
+            update={
+                "blocked_request_count": blocked_count + 1,
+                "last_action": f"blocked_tool:{tool_name}",
+                "messages": [
+                    ToolMessage(
+                        content=f"Tool blocked: {tool_name} not authorised",
+                        tool_call_id=runtime.tool_call_id,
+                    )
+                ],
+            }
+        )
 
-    try:
-        raise RuntimeError("Simulated production tool failure.")
-    except RuntimeError:
-        runtime.record_error("tool_error:risky_tool")
-        return "Tool failed safely: risky_tool"
+    error_count = runtime.state.get("error_count", 0)
+    return Command(
+        update={
+            "error_count": error_count + 1,
+            "last_action": "tool_error:risky_tool",
+            "messages": [
+                ToolMessage(
+                    content="Tool failed safely: risky_tool",
+                    tool_call_id=runtime.tool_call_id,
+                )
+            ],
+        }
+    )
 
 
-def run_valid_request_step(runtime: ProductionRuntime) -> None:
-    user_message = "Add a note about production-ready agents."
-    note = "Production agents need validation, authorisation, error handling, and observability."
+def run_valid_request_step(
+    agent: Any, config: RunnableConfig, max_input_length: int
+) -> None:
+    """Step 1: valid request is processed through the agent."""
+    user_message = (
+        "Add this note: Production agents need validation, authorisation, "
+        "error handling, and observability."
+    )
 
-    validation_error = validate_input(runtime, user_message)
+    validation_error = validate_input(user_message, max_input_length)
 
     if validation_error is not None:
+        state = agent.get_state(config).values
+        blocked_count = state.get("blocked_request_count", 0)
+        agent.update_state(
+            config,
+            {
+                "blocked_request_count": blocked_count + 1,
+                "last_action": "blocked_input_validation",
+            },
+        )
         result = validation_error
     else:
-        result = add_learning_note_tool(runtime, note)
+        invoke_agent(agent, user_message, config)
+        state = agent.get_state(config).values
+        result = latest_message_to_str(state)
 
     print_section("Step 1: valid request is processed")
     print_turn("user", user_message)
     print_turn("result", result)
-    print_turn("state", format_json(runtime.state))
+
+    state = agent.get_state(config).values
+    print_turn("state", format_state_fields(state))
+
+    if not state.get("notes"):
+        print_turn(
+            "warning",
+            "Expected note was not added. The model may not have called the tool.",
+        )
 
 
-def run_invalid_input_step(runtime: ProductionRuntime) -> None:
+def run_invalid_input_step(
+    agent: Any, config: RunnableConfig, max_input_length: int
+) -> None:
+    """Step 2: invalid input is blocked before agent invocation."""
     user_message = ""
 
-    validation_error = validate_input(runtime, user_message)
+    validation_error = validate_input(user_message, max_input_length)
+
+    if validation_error is not None:
+        state = agent.get_state(config).values
+        blocked_count = state.get("blocked_request_count", 0)
+        agent.update_state(
+            config,
+            {
+                "blocked_request_count": blocked_count + 1,
+                "last_action": "blocked_empty_input",
+            },
+        )
+        result = validation_error
+    else:
+        result = "Input accepted."
 
     print_section("Step 2: invalid input is blocked")
     print_turn("user", "<empty message>")
-    print_turn("result", validation_error or "Input accepted.")
-    print_turn("state", format_json(runtime.state))
+    print_turn("result", result)
+
+    state = agent.get_state(config).values
+    print_turn("state", format_state_fields(state))
 
 
-def run_unauthorised_tool_step(runtime: ProductionRuntime) -> None:
+def run_unauthorised_tool_step(
+    agent: Any, config: RunnableConfig, max_input_length: int
+) -> None:
+    """Step 3: unauthorised tool is blocked by tool-level authorisation."""
     user_message = "Run the risky production tool."
 
-    validation_error = validate_input(runtime, user_message)
+    validation_error = validate_input(user_message, max_input_length)
 
     if validation_error is not None:
+        state = agent.get_state(config).values
+        blocked_count = state.get("blocked_request_count", 0)
+        agent.update_state(
+            config,
+            {
+                "blocked_request_count": blocked_count + 1,
+                "last_action": "blocked_input_validation",
+            },
+        )
         result = validation_error
     else:
-        result = risky_tool(runtime)
+        invoke_agent(agent, user_message, config)
+        state = agent.get_state(config).values
+        result = latest_message_to_str(state)
 
     print_section("Step 3: unauthorised tool is blocked")
     print_turn("user", user_message)
     print_turn("result", result)
-    print_turn("state", format_json(runtime.state))
+
+    state = agent.get_state(config).values
+    print_turn("state", format_state_fields(state))
+
+    if state.get("last_action") != "blocked_tool:risky_tool":
+        print_turn("warning", "Expected risky_tool to be blocked.")
 
 
-def run_complete_topic_step(runtime: ProductionRuntime) -> None:
-    user_message = "Complete the production-ready agents lab."
+def run_complete_topic_step(
+    agent: Any, config: RunnableConfig, max_input_length: int
+) -> None:
+    """Step 4: authorised completion is recorded."""
+    user_message = "Complete the production-ready agents lab and move to middleware_concept."
 
-    validation_error = validate_input(runtime, user_message)
+    validation_error = validate_input(user_message, max_input_length)
 
     if validation_error is not None:
+        state = agent.get_state(config).values
+        blocked_count = state.get("blocked_request_count", 0)
+        agent.update_state(
+            config,
+            {
+                "blocked_request_count": blocked_count + 1,
+                "last_action": "blocked_input_validation",
+            },
+        )
         result = validation_error
     else:
-        result = complete_topic_tool(
-            runtime=runtime,
-            topic="production_ready_agents",
-            next_topic="middleware_concept",
-        )
+        invoke_agent(agent, user_message, config)
+        state = agent.get_state(config).values
+        result = latest_message_to_str(state)
 
     print_section("Step 4: authorised completion is recorded")
     print_turn("user", user_message)
     print_turn("result", result)
-    print_turn("state", format_json(runtime.state))
+
+    state = agent.get_state(config).values
+    print_turn("state", format_state_fields(state))
+
+    if "production_ready_agents" not in state.get("completed_topics", []):
+        print_turn("warning", "Expected topic completion did not occur.")
 
 
-def run_production_summary(runtime: ProductionRuntime) -> None:
+def run_production_summary(agent: Any, config: RunnableConfig) -> None:
+    """Step 5: deterministic production summary."""
+    state = agent.get_state(config).values
+
+    tool_call_count = state.get("tool_call_count", 0)
+    blocked_request_count = state.get("blocked_request_count", 0)
+    error_count = state.get("error_count", 0)
+    last_action = state.get("last_action", "Unknown")
+
     summary = (
         "A production-ready agent should not rely on model behaviour alone.\n"
         "This lab used deterministic controls around the agent:\n"
-        "1. Input validation.\n"
-        "2. Tool authorisation.\n"
+        "1. Input validation (before agent invocation, not prompt-only).\n"
+        "2. Tool authorisation (inside tools via is_tool_authorised).\n"
         "3. Safe blocking of unauthorised tools.\n"
-        "4. Controlled state updates.\n"
+        "4. Controlled state updates via Command(update={...}).\n"
         "5. Basic observability through counters and last_action.\n"
-        f"Tool calls: {runtime.state['tool_call_count']}\n"
-        f"Blocked requests: {runtime.state['blocked_request_count']}\n"
-        f"Errors: {runtime.state['error_count']}"
+        f"Tool calls: {tool_call_count}\n"
+        f"Blocked requests: {blocked_request_count}\n"
+        f"Errors: {error_count}\n"
+        f"Last action: {last_action}"
     )
 
     print_section("Production readiness summary")
     print_turn("summary", summary)
-    print_turn("final state", format_json(runtime.state))
-    print_turn("context", format_json(runtime.context))
+    print_turn("final state", format_state_fields(state))
 
 
 def main() -> None:
+    """Main entry point for Lab 12."""
     print_section("12 Production-Ready Agents")
 
-    state = create_state()
-    context = create_context()
-    runtime = ProductionRuntime(state=state, context=context)
+    model = get_chat_model()
 
-    print_turn("initial context", format_json(runtime.context))
-    print_turn("initial state", format_json(runtime.state))
+    agent = create_agent(
+        model=model,
+        tools=[add_learning_note, complete_topic, risky_tool],
+        state_schema=ProductionState,
+        checkpointer=MemorySaver(),
+    )
 
-    run_valid_request_step(runtime)
-    run_invalid_input_step(runtime)
-    run_unauthorised_tool_step(runtime)
-    run_complete_topic_step(runtime)
-    run_production_summary(runtime)
+    config: RunnableConfig = {
+        "configurable": {
+            "thread_id": "production-ready-agents-lab",
+        }
+    }
+
+    initial_state = create_initial_state()
+    agent.update_state(config, initial_state)
+
+    state = agent.get_state(config).values
+    print_turn("initial state", format_state_fields(state))
+
+    max_input_length = 200
+
+    run_valid_request_step(agent, config, max_input_length)
+    run_invalid_input_step(agent, config, max_input_length)
+    run_unauthorised_tool_step(agent, config, max_input_length)
+    run_complete_topic_step(agent, config, max_input_length)
+    run_production_summary(agent, config)
 
     print_section("Conclusion")
     print()
     print(
-        "Production-ready agents need deterministic controls around the model. "
-        "Validation, authorisation, error handling, and observable state changes make behaviour safer and easier to debug."
+        "Production-ready agents need deterministic controls around the model.\n"
+        "This lab combined everything learned so far:\n"
+        "- AgentState for structured state\n"
+        "- create_agent for framework-native agent creation\n"
+        "- @tool decorator and ToolRuntime for tool registration\n"
+        "- Command(update={...}) for atomic state updates\n"
+        "- ToolMessage for tool result communication\n"
+        "- MemorySaver + thread_id for persistence\n"
+        "- RunnableConfig for invocation configuration\n"
+        "\nProduction controls added:\n"
+        "- Input validation BEFORE agent invocation (deterministic, not prompt-only)\n"
+        "- Tool authorisation inside tools (runtime check)\n"
+        "- blocked_request_count, error_count, tool_call_count for observability\n"
+        "- Deterministic summary showing all production metrics\n"
+        "\nMiddleware (Lab 13+) will add cross-cutting concerns."
     )
 
 

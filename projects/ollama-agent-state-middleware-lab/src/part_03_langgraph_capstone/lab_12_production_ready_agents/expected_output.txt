@@ -1,17 +1,11 @@
 12 Production-Ready Agents
 ==========================
-
-INITIAL CONTEXT:
-{
-  "user_id": "learner-001",
-  "role": "learner",
-  "environment": "local",
-  "authorised_tools": [
-    "add_learning_note",
-    "complete_topic"
-  ],
-  "max_input_length": 120
-}
+[config] Project root: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab
+[config] .env path: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab\.env
+[config] .env loaded: True
+[config] MODEL_PROVIDER: ollama
+[config] OLLAMA_MODEL: qwen2.5-coder:7b
+[config] OLLAMA_BASE_URL: http://localhost:11434
 
 INITIAL STATE:
 {
@@ -30,17 +24,21 @@ INITIAL STATE:
   "notes": [],
   "tool_call_count": 0,
   "blocked_request_count": 0,
-  "error_count": 0
+  "error_count": 0,
+  "authorised_tools": [
+    "add_learning_note",
+    "complete_topic"
+  ]
 }
 
 Step 1: valid request is processed
 ==================================
 
 USER:
-Add a note about production-ready agents.
+Add this note: Production agents need validation, authorisation, error handling, and observability.
 
 RESULT:
-Note added: Production agents need validation, authorisation, error handling, and observability.
+{"name": "add_learning_note", "arguments": {"note": "Production agents need validation, authorisation, error handling, and observability."}}
 
 STATE:
 {
@@ -55,14 +53,19 @@ STATE:
     "writing_state_from_tools",
     "context_vs_state"
   ],
-  "last_action": "tool_added_learning_note",
-  "notes": [
-    "Production agents need validation, authorisation, error handling, and observability."
-  ],
-  "tool_call_count": 1,
+  "last_action": "started_production_ready_agents_lab",
+  "notes": [],
+  "tool_call_count": 0,
   "blocked_request_count": 0,
-  "error_count": 0
+  "error_count": 0,
+  "authorised_tools": [
+    "add_learning_note",
+    "complete_topic"
+  ]
 }
+
+WARNING:
+Expected note was not added. The model may not have called the tool.
 
 Step 2: invalid input is blocked
 ================================
@@ -87,12 +90,14 @@ STATE:
     "context_vs_state"
   ],
   "last_action": "blocked_empty_input",
-  "notes": [
-    "Production agents need validation, authorisation, error handling, and observability."
-  ],
-  "tool_call_count": 1,
+  "notes": [],
+  "tool_call_count": 0,
   "blocked_request_count": 1,
-  "error_count": 0
+  "error_count": 0,
+  "authorised_tools": [
+    "add_learning_note",
+    "complete_topic"
+  ]
 }
 
 Step 3: unauthorised tool is blocked
@@ -102,7 +107,7 @@ USER:
 Run the risky production tool.
 
 RESULT:
-Tool blocked: risky_tool
+{"name": "risky_tool", "arguments": {}}
 
 STATE:
 {
@@ -117,28 +122,33 @@ STATE:
     "writing_state_from_tools",
     "context_vs_state"
   ],
-  "last_action": "blocked_tool:risky_tool",
-  "notes": [
-    "Production agents need validation, authorisation, error handling, and observability."
-  ],
-  "tool_call_count": 1,
-  "blocked_request_count": 2,
-  "error_count": 0
+  "last_action": "blocked_empty_input",
+  "notes": [],
+  "tool_call_count": 0,
+  "blocked_request_count": 1,
+  "error_count": 0,
+  "authorised_tools": [
+    "add_learning_note",
+    "complete_topic"
+  ]
 }
+
+WARNING:
+Expected risky_tool to be blocked.
 
 Step 4: authorised completion is recorded
 =========================================
 
 USER:
-Complete the production-ready agents lab.
+Complete the production-ready agents lab and move to middleware_concept.
 
 RESULT:
-Completed production_ready_agents; next topic is middleware_concept.
+{"name": "complete_topic", "arguments": {"topic": "production_ready_agents_lab", "next_topic": "middleware_concept"}}
 
 STATE:
 {
   "learner_name": "Muhammad",
-  "current_topic": "middleware_concept",
+  "current_topic": "production_ready_agents",
   "completed_topics": [
     "custom_state",
     "state_persistence",
@@ -146,17 +156,21 @@ STATE:
     "toolruntime_solution",
     "reading_state_in_tools",
     "writing_state_from_tools",
-    "context_vs_state",
-    "production_ready_agents"
+    "context_vs_state"
   ],
-  "last_action": "tool_completed_topic",
-  "notes": [
-    "Production agents need validation, authorisation, error handling, and observability."
-  ],
-  "tool_call_count": 2,
-  "blocked_request_count": 2,
-  "error_count": 0
+  "last_action": "blocked_empty_input",
+  "notes": [],
+  "tool_call_count": 0,
+  "blocked_request_count": 1,
+  "error_count": 0,
+  "authorised_tools": [
+    "add_learning_note",
+    "complete_topic"
+  ]
 }
+
+WARNING:
+Expected topic completion did not occur.
 
 Production readiness summary
 ============================
@@ -164,19 +178,20 @@ Production readiness summary
 SUMMARY:
 A production-ready agent should not rely on model behaviour alone.
 This lab used deterministic controls around the agent:
-1. Input validation.
-2. Tool authorisation.
+1. Input validation (before agent invocation, not prompt-only).
+2. Tool authorisation (inside tools via is_tool_authorised).
 3. Safe blocking of unauthorised tools.
-4. Controlled state updates.
+4. Controlled state updates via Command(update={...}).
 5. Basic observability through counters and last_action.
-Tool calls: 2
-Blocked requests: 2
+Tool calls: 0
+Blocked requests: 1
 Errors: 0
+Last action: blocked_empty_input
 
 FINAL STATE:
 {
   "learner_name": "Muhammad",
-  "current_topic": "middleware_concept",
+  "current_topic": "production_ready_agents",
   "completed_topics": [
     "custom_state",
     "state_persistence",
@@ -184,31 +199,36 @@ FINAL STATE:
     "toolruntime_solution",
     "reading_state_in_tools",
     "writing_state_from_tools",
-    "context_vs_state",
-    "production_ready_agents"
+    "context_vs_state"
   ],
-  "last_action": "tool_completed_topic",
-  "notes": [
-    "Production agents need validation, authorisation, error handling, and observability."
-  ],
-  "tool_call_count": 2,
-  "blocked_request_count": 2,
-  "error_count": 0
-}
-
-CONTEXT:
-{
-  "user_id": "learner-001",
-  "role": "learner",
-  "environment": "local",
+  "last_action": "blocked_empty_input",
+  "notes": [],
+  "tool_call_count": 0,
+  "blocked_request_count": 1,
+  "error_count": 0,
   "authorised_tools": [
     "add_learning_note",
     "complete_topic"
-  ],
-  "max_input_length": 120
+  ]
 }
 
 Conclusion
 ==========
 
-Production-ready agents need deterministic controls around the model. Validation, authorisation, error handling, and observable state changes make behaviour safer and easier to debug.
+Production-ready agents need deterministic controls around the model.
+This lab combined everything learned so far:
+- AgentState for structured state
+- create_agent for framework-native agent creation
+- @tool decorator and ToolRuntime for tool registration
+- Command(update={...}) for atomic state updates
+- ToolMessage for tool result communication
+- MemorySaver + thread_id for persistence
+- RunnableConfig for invocation configuration
+
+Production controls added:
+- Input validation BEFORE agent invocation (deterministic, not prompt-only)
+- Tool authorisation inside tools (runtime check)
+- blocked_request_count, error_count, tool_call_count for observability
+- Deterministic summary showing all production metrics
+
+Middleware (Lab 13+) will add cross-cutting concerns.
