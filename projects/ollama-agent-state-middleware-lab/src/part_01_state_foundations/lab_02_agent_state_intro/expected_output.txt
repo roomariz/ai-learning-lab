@@ -1,36 +1,24 @@
 02 Agent State Intro
 ====================
-
 [config] Project root: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab
 [config] .env path: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab\.env
 [config] .env loaded: True
+[config] MODEL_PROVIDER: ollama
 [config] OLLAMA_MODEL: qwen2.5-coder:7b
 [config] OLLAMA_BASE_URL: http://localhost:11434
 
-Call 1: user shares a preference
-================================
-
-USER:
-My preferred programming language is Python. Please remember that.
-
-ASSISTANT:
-Got it! You prefer Python for your programming tasks. How can I assist you with it today?
-
-STATE:
-{'preferred_language': 'Python'}
-
-Call 2: fresh call with structured state
-========================================
+Call with structured AgentState
+===============================
 
 USER:
 What is my preferred programming language?
 
+STATE:
+preferred_language=Python
+
 ASSISTANT:
 Your preferred programming language is Python.
 
-STATE:
-{'preferred_language': 'Python'}
-
 Conclusion
 ==========
-The second call still does not include the full earlier conversation. However, it receives the important fact through structured state. This shows why agent state is more reliable than relying only on raw message history.
+This lab introduces LangChain AgentState. Unlike a plain model call, the agent can receive structured fields alongside messages during a single invocation. Later labs will show persistence, tools, ToolRuntime, Command(update={...}), and ToolMessage.

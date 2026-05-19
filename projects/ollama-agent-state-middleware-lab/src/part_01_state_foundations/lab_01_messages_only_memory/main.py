@@ -1,3 +1,13 @@
+"""
+Lab 01: Messages-Only Memory
+
+This lab demonstrates that each model.invoke() call is isolated.
+There's no automatic memory between calls - the model only sees the
+messages passed in the current invocation.
+
+Later labs introduce AgentState and persistence as stronger memory patterns.
+"""
+
 from langchain_ollama import ChatOllama
 
 from src.common.model import get_chat_model
@@ -5,12 +15,14 @@ from src.common.printer import print_section, print_turn
 
 
 def message_content_to_str(content: object) -> str:
+    """Convert message content to string regardless of its type."""
     if isinstance(content, str):
         return content
     return str(content)
 
 
 def invoke_model(model: ChatOllama, messages: list[tuple[str, str]]) -> str:
+    """Call the model with a list of (role, content) message tuples."""
     try:
         response = model.invoke(messages)
     except Exception:
@@ -20,6 +32,7 @@ def invoke_model(model: ChatOllama, messages: list[tuple[str, str]]) -> str:
 
 
 def run_first_call(model: ChatOllama) -> None:
+    """First call: User tells the model their preferred language."""
     messages = [
         (
             "system",
@@ -40,6 +53,10 @@ def run_first_call(model: ChatOllama) -> None:
 
 
 def run_second_call_without_history(model: ChatOllama) -> None:
+    """
+    Second call: Ask about the preference WITHOUT including first call's messages.
+    The model has no memory of the previous call.
+    """
     messages = [
         (
             "system",
