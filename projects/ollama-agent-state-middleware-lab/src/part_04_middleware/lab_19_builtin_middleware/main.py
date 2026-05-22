@@ -1,99 +1,89 @@
-from dataclasses import dataclass, field
-from typing import Callable, TypedDict
+from src.common.printer import print_section, print_turn
 
 
-class BuiltinMiddlewareState(TypedDict):
-    learner_name: str
-    current_topic: str
-    completed_topics: list[str]
-    last_action: str
-    notes: list[str]
-    middleware_log: list[str]
+def before_model(user_message: str) -> str:
+    """Built-in-style hook that runs before the model.
+
+    In real framework middleware, this hook can inspect or modify the message
+    before the model receives it.
+    """
+    print("[before_model] inspecting user message")
+    return user_message.strip()
 
 
-@dataclass
-class BuiltinMiddleware:
-    name: str
-    before_model: Callable[[dict, "BuiltinRuntime"], None] | None = None
-    after_model: Callable[[dict, "BuiltinRuntime"], None] | None = None
+def call_model(user_message: str) -> str:
+    """Tiny fake model used to keep this lab deterministic.
+
+    Later labs can replace this with a real LangGraph agent/model call.
+    """
+    if "note" in user_message.lower():
+        return "tool:add_note"
+    return "no_tool"
 
 
-@dataclass
-class BuiltinRuntime:
-    context: dict
-    middleware_stack: list[BuiltinMiddleware] = field(default_factory=list)
-
-    def execute(self, state: dict) -> None:
-        for mw in self.middleware_stack:
-            if mw.before_model:
-                mw.before_model(state, self)
-                state["middleware_log"].append(f"{mw.name}.before_model")
-
-        state["middleware_log"].append("[model call]")
-
-        for mw in reversed(self.middleware_stack):
-            if mw.after_model:
-                mw.after_model(state, self)
-                state["middleware_log"].append(f"{mw.name}.after_model")
+def add_note(notes: list[str], note: str) -> str:
+    """Tool called by the fake model decision."""
+    notes.append(note)
+    return f"note added: {note}"
 
 
-def create_builtin_middleware_demo() -> None:
-    request_id_middleware = BuiltinMiddleware(
-        name="request_id",
-        before_model=lambda s, r: print("[request_id] Generating request ID for turn."),
-        after_model=lambda s, r: print("[request_id] Request completed."),
-    )
+def wrap_tool_call(tool_name: str, notes: list[str], note: str) -> str:
+    """Built-in-style hook that wraps tool execution.
 
-    timing_middleware = BuiltinMiddleware(
-        name="timing",
-        before_model=lambda s, r: print("[timing] Model call starting."),
-        after_model=lambda s, r: print("[timing] Model call finished."),
-    )
+    In real framework middleware, this is where you can log, authorise,
+    catch errors, or measure tool execution.
+    """
+    print(f"[wrap_tool_call] running tool: {tool_name}")
 
-    print(
-        "This lab demonstrates built-in middleware hooks.\n"
-        "It shows where before_model and after_model run in the agent lifecycle."
-    )
+    if tool_name == "add_note":
+        return add_note(notes, note)
 
-    print("\nMiddleware registered:")
-    print("  1. request_id  - logs request ID generation")
-    print("  2. timing      - logs model call timing")
+    return f"unknown tool: {tool_name}"
 
-    print("\nHook execution order:")
-    print("  before_model hooks run before the LLM call.")
-    print("  after_model hooks run after the LLM call.")
-    print("  Middleware runs in the order they are registered.")
 
-    print("\n" + "-" * 40)
-    print("Demo execution:")
+def after_model(model_decision: str) -> None:
+    """Built-in-style hook that runs after the model.
 
-    runtime = BuiltinRuntime(context={})
-    runtime.middleware_stack = [request_id_middleware, timing_middleware]
+    In real framework middleware, this hook can inspect the model output,
+    record metrics, or apply response checks.
+    """
+    print(f"[after_model] model decision: {model_decision}")
 
-    state: BuiltinMiddlewareState = {
-        "learner_name": "Muhammad",
-        "current_topic": "builtin_middleware",
-        "completed_topics": [],
-        "last_action": "started_builtin_middleware",
-        "notes": [],
-        "middleware_log": [],
-    }
 
-    runtime.execute(state)
+def run_agent(notes: list[str], user_message: str) -> str:
+    cleaned_message = before_model(user_message)
+
+    model_decision = call_model(cleaned_message)
+
+    after_model(model_decision)
+
+    if model_decision == "tool:add_note":
+        return wrap_tool_call("add_note", notes, cleaned_message)
+
+    return "no tool was needed"
 
 
 def main() -> None:
-    print("19 Built-in Middleware")
-    print("=" * 40)
+    print_section("19 Built-in Middleware")
 
-    create_builtin_middleware_demo()
+    notes: list[str] = []
 
-    print("\nConclusion")
-    print("-" * 40)
+    print_section("Scenario 1: message uses a tool")
+    result = run_agent(notes, "  Add a note about built-in middleware  ")
+    print_turn("result", result)
+    print_turn("notes", str(notes))
+
+    print_section("Scenario 2: message does not need a tool")
+    result = run_agent(notes, "hello")
+    print_turn("result", result)
+    print_turn("notes", str(notes))
+
+    print_section("Conclusion")
+    print()
     print(
-        "Built-in middleware hooks: before_model and after_model. "
-        "These allow you to inject logic at the start and end of each model call. "
-        "Common uses include request ID generation, timing, logging, and metrics collection."
+        "Built-in middleware gives frameworks standard hook points such as "
+        "before_model, wrap_tool_call, and after_model. Earlier labs built "
+        "the idea manually. This lab shows how those ideas map to framework-style hooks."
     )
 
 

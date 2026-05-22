@@ -2,46 +2,55 @@
 
 ## Goal
 
-Show LangGraph's built-in middleware hooks (`before_model` and `after_model`) and how they integrate into the agent lifecycle.
+Show how earlier manual middleware ideas map to framework-style hook names.
 
 ## What changed from Lab 18
 
-Lab 18 built custom error handling middleware from scratch.
+Lab 18 showed error handling middleware around tool execution.
 
-This lab uses LangGraph's built-in `create_middleware` to register hooks at the model level.
+This lab introduces built-in-style middleware hook names:
 
-## Built-in middleware hooks
+- `before_model`
+- `after_model`
+- `wrap_tool_call`
 
-```python
-from langchain.agents.middleware import create_middleware
+The lab is still deterministic. It uses a tiny fake model so the hook order is easy to understand.
 
-middleware = create_middleware(
-    name="my_middleware",
-    before_model=lambda state, runtime: print("Before model call"),
-    after_model=lambda state, runtime: print("After model call"),
-)
+## Core flow
+
+```txt
+user message
+→ before_model
+→ fake model decision
+→ after_model
+→ if tool is needed: wrap_tool_call
+→ tool runs
 ```
 
 ## Hook phases
 
-| Hook | When it runs |
-|------|-------------|
-| `before_model` | Before the LLM call |
-| `after_model` | After the LLM call |
+| Hook             | What it represents                         |
+| ---------------- | ------------------------------------------ |
+| `before_model`   | Runs before the model receives the message |
+| `after_model`    | Runs after the model returns a decision    |
+| `wrap_tool_call` | Runs around tool execution                 |
 
 ## Why this matters
 
-LangGraph's built-in middleware gives you a standard way to inject logic around model calls:
+Earlier labs built middleware manually:
 
-- **Request ID**: tag each call with a unique ID for tracing.
-- **Timing**: measure how long each model call takes.
-- **Logging**: log inputs and outputs for audit.
-- **Metrics**: record latency, token count, or error rates.
+* Lab 14: before / after observation
+* Lab 15: lifecycle hook points
+* Lab 16: validation before action
+* Lab 17: authorisation before tool execution
+* Lab 18: error handling around tool execution
+
+This lab shows how those ideas map to standard framework-style hook points.
 
 ## Files in this lab
 
 ```txt
-src/19_builtin_middleware/
+src/part_04_middleware/lab_19_builtin_middleware/
 ├── README.md
 ├── main.py
 └── expected_output.txt
@@ -50,19 +59,27 @@ src/19_builtin_middleware/
 ## Run
 
 ```bash
-uv run python -m src.19_builtin_middleware.main
+uv run python -m src.part_04_middleware.lab_19_builtin_middleware.main
 ```
-
-> Note: This lab calls the model. Make sure Ollama is running or your `.env` is configured for OpenRouter.
 
 ## Expected behaviour
 
-The lab demonstrates:
+This lab is deterministic. No model is called.
 
-- How `before_model` and `after_model` hooks are registered.
-- The execution order of multiple middleware instances.
-- A live agent invocation that triggers the middleware pipeline.
+1. `before_model` runs before the fake model decision.
+2. `after_model` runs after the fake model decision.
+3. `wrap_tool_call` runs only when the fake model decides a tool is needed.
+4. Scenario 1 calls `add_note`.
+5. Scenario 2 does not call a tool.
 
 ## Learning point
 
-LangGraph provides built-in middleware hooks that run around each model call. These allow you to inject cross-cutting logic like request ID generation, timing, logging, and metrics collection without modifying the agent or tool code.
+Manual middleware teaches the concept.
+
+Framework-style hooks give named places for that logic:
+
+* model-level hooks
+* tool-level wrappers
+* post-processing hooks
+
+This prepares the project for real LangGraph middleware and execution-order rules in Lab 20.

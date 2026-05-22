@@ -1,35 +1,30 @@
 19 Built-in Middleware
-=====================
+======================
 
-This lab demonstrates LangGraph's built-in middleware hooks.
-It shows where before_model and after_model run in the agent lifecycle.
+Scenario 1: message uses a tool
+===============================
+[before_model] inspecting user message
+[after_model] model decision: tool:add_note
+[wrap_tool_call] running tool: add_note
 
-Middleware registered:
-  1. request_id  - logs request ID generation
-  2. timing       - logs model call timing
+RESULT:
+note added: Add a note about built-in middleware
 
-Hook execution order:
-  before_model hooks run before the LLM call.
-  after_model hooks run after the LLM call.
-  Middleware runs in the order they are registered.
+NOTES:
+['Add a note about built-in middleware']
 
-Creating agent with middleware pipeline...
-Agent created. Invoking with a test message...
-[config] Project root: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab
-[config] .env path: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab\.env
-[config] .env loaded: True
-[config] MODEL_PROVIDER: ollama
-[config] OLLAMA_MODEL: qwen2.5-coder:7b
-[config] OLLAMA_BASE_URL: http://localhost:11434
-[request_id] start
-[timing] start
-[request_id] end
-[timing] end
+Scenario 2: message does not need a tool
+========================================
+[before_model] inspecting user message
+[after_model] model decision: no_tool
 
-Agent invocation complete.
-Response: Hello!
+RESULT:
+no tool was needed
+
+NOTES:
+['Add a note about built-in middleware']
 
 Conclusion
-----------
+==========
 
-LangGraph provides built-in middleware hooks: before_model and after_model. These allow you to inject logic at the start and end of each model call. Common uses include request ID generation, timing, logging, and metrics collection.
+Built-in middleware gives frameworks standard hook points such as before_model, wrap_tool_call, and after_model. Earlier labs built the idea manually. This lab shows how those ideas map to framework-style hooks.
