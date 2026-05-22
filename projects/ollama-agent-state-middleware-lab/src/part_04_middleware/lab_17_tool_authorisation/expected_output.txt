@@ -1,156 +1,27 @@
-17 Tool Authorisation
-=====================
+17 Tool Authorisation Middleware
+================================
 
-INITIAL CONTEXT:
-{
-  "user_id": "learner-001",
-  "role": "learner",
-  "environment": "local",
-  "authorised_tools": [
-    "add_note",
-    "complete_topic",
-    "list_progress"
-  ],
-  "admin_tools": [
-    "delete_all_notes",
-    "reset_progress",
-    "update_user_role"
-  ],
-  "role_permissions": {
-    "learner": [
-      "add_note",
-      "complete_topic",
-      "list_progress"
-    ],
-    "admin": [
-      "add_note",
-      "complete_topic",
-      "list_progress",
-      "delete_all_notes",
-      "reset_progress",
-      "update_user_role"
-    ],
-    "moderator": [
-      "add_note",
-      "complete_topic",
-      "list_progress",
-      "delete_all_notes"
-    ]
-  }
-}
-
-Step 1: admin tool blocked for learner role
-============================================
-
-TOOL:
-delete_all_notes
-
-ROLE:
-learner
+Scenario 1: authorised tool
+===========================
+[authorisation middleware] passed: running tool
 
 RESULT:
-Blocked: delete_all_notes requires admin role.
+note added: authorised tool executed
 
-Step 2: authorised tool allowed
-=================================
+NOTES:
+['existing note', 'authorised tool executed']
 
-TOOL:
-add_note
-
-ROLE:
-learner
+Scenario 2: blocked tool
+========================
+[authorisation middleware] blocked: Blocked: tool 'delete_all_notes' is not authorised.
 
 RESULT:
-allowed
+Blocked: tool 'delete_all_notes' is not authorised.
 
-Step 3: unknown tool blocked
-==============================
-
-TOOL:
-update_config
-
-ROLE:
-learner
-
-RESULT:
-Blocked: update_config is not authorised.
-
-Step 4: role permission check (learner blocked)
-===============================================
-
-TOOL:
-delete_all_notes
-
-ROLE:
-learner
-
-RESULT:
-Blocked: delete_all_notes is not permitted for role 'learner'.
-
-Step 5: role permission check (admin allowed)
-=============================================
-
-TOOL:
-delete_all_notes
-
-ROLE:
-admin
-
-RESULT:
-allowed
-
-Authorisation summary
-======================
-
-SUMMARY:
-Tool authorisation middleware checks if a user or role can run a tool.
-Auth checks performed: 5
-Auth blocks: 3
-Checks: tool in authorised list, tool not admin-only, tool in role permissions.
-
-AUTH LOG:
-[
-  "auth_check: delete_all_notes",
-  "blocked: admin-only tool for role 'learner'",
-  "auth_check: add_note",
-  "allowed: add_note",
-  "auth_check: update_config",
-  "blocked: tool not in authorised_tools",
-  "auth_check: delete_all_notes",
-  "blocked: tool 'delete_all_notes' not in role permissions for 'learner'",
-  "auth_check: delete_all_notes",
-  "role_allowed: delete_all_notes for role 'admin'"
-]
-
-FINAL STATE:
-{
-  "learner_name": "Muhammad",
-  "current_topic": "tool_authorisation",
-  "completed_topics": [
-    "production_ready_agents",
-    "middleware_concept",
-    "middleware_hooks",
-    "input_validation_middleware"
-  ],
-  "last_action": "blocked_tool:update_config",
-  "notes": [],
-  "auth_check_count": 5,
-  "auth_blocked_count": 3,
-  "auth_log": [
-    "auth_check: delete_all_notes",
-    "blocked: admin-only tool for role 'learner'",
-    "auth_check: add_note",
-    "allowed: add_note",
-    "auth_check: update_config",
-    "blocked: tool not in authorised_tools",
-    "auth_check: delete_all_notes",
-    "blocked: tool 'delete_all_notes' not in role permissions for 'learner'",
-    "auth_check: delete_all_notes",
-    "role_allowed: delete_all_notes for role 'admin'"
-  ]
-}
+NOTES:
+['existing note', 'authorised tool executed']
 
 Conclusion
 ==========
 
-Tool authorisation middleware ensures users can only run tools they are permitted to use. It checks the tool against an authorised list, admin restrictions, and role-based permissions.
+Tool authorisation middleware checks whether a tool is allowed before execution. Blocked tools never run.
