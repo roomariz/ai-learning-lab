@@ -1,152 +1,35 @@
 18 Error Handling Middleware
 ============================
 
-INITIAL CONTEXT:
-{
-  "user_id": "learner-001",
-  "role": "learner",
-  "environment": "local",
-  "retry_on_errors": true,
-  "max_retries": 3
-}
-
-Step 1: tool error is caught and reported
-==========================================
-
-TOOL:
-risky_tool
-
-RESULT:
-Error in risky_tool (RuntimeError): Simulated tool failure.
-
-ERROR_COUNT:
-1
-
-Step 2: KeyError is caught and reported
-=======================================
-
-TOOL:
-failing_lookup_tool
-
-RESULT:
-Error in failing_lookup_tool (KeyError): Key not found: missing_key
-
-ERROR_COUNT:
-2
-
-Step 3: error handled with fallback
-===================================
-
-TOOL:
-failing_lookup_tool
-
-RESULT:
-Fallback: key not found, returning empty list.
-
-ERRORS_RECOVERED:
-1
-
-Step 4: error with retry info
+Scenario 1: safe_note succeeds
 ==============================
 
-TOOL:
-risky_tool
+RESULT:
+note added: learning about middleware
 
-RETRY_ENABLED:
-True
+NOTES:
+['learning about middleware']
 
-MAX_RETRIES:
-3
+Scenario 2: risky_note raises ValueError
+========================================
+[error handling middleware] caught: ValueError
 
 RESULT:
-Error in risky_tool (RuntimeError): Simulated tool failure. Retry: True
+Error in risky_note (ValueError): invalid note: bad data
 
-Error handling summary
-======================
+NOTES:
+['learning about middleware']
 
-SUMMARY:
-Error handling middleware catches exceptions from tools.
-It can report errors, fall back to safe defaults, or flag for retry.
-Total errors: 3
-Recovered with fallback: 1
-Error log entries: 3
+Scenario 3: unknown tool
+========================
 
-ERROR LOG:
-[
-  {
-    "tool": "risky_tool",
-    "error_type": "RuntimeError",
-    "message": "Simulated tool failure.",
-    "recovered": false
-  },
-  {
-    "tool": "failing_lookup_tool",
-    "error_type": "KeyError",
-    "message": "Key not found: missing_key",
-    "recovered": false
-  },
-  {
-    "tool": "failing_lookup_tool",
-    "error_type": "KeyError",
-    "message": "Key not found: fallback_key",
-    "recovered": true,
-    "fallback_used": true
-  },
-  {
-    "tool": "risky_tool",
-    "error_type": "RuntimeError",
-    "message": "Simulated tool failure.",
-    "recovered": false,
-    "retry_attempted": true
-  }
-]
+RESULT:
+Error: unknown tool 'unknown_tool'
 
-FINAL STATE:
-{
-  "learner_name": "Muhammad",
-  "current_topic": "error_handling_middleware",
-  "completed_topics": [
-    "production_ready_agents",
-    "middleware_concept",
-    "middleware_hooks",
-    "input_validation_middleware",
-    "tool_authorisation"
-  ],
-  "last_action": "error:RuntimeError:risky_tool",
-  "notes": [],
-  "error_count": 3,
-  "errors_recovered": 1,
-  "error_log": [
-    {
-      "tool": "risky_tool",
-      "error_type": "RuntimeError",
-      "message": "Simulated tool failure.",
-      "recovered": false
-    },
-    {
-      "tool": "failing_lookup_tool",
-      "error_type": "KeyError",
-      "message": "Key not found: missing_key",
-      "recovered": false
-    },
-    {
-      "tool": "failing_lookup_tool",
-      "error_type": "KeyError",
-      "message": "Key not found: fallback_key",
-      "recovered": true,
-      "fallback_used": true
-    },
-    {
-      "tool": "risky_tool",
-      "error_type": "RuntimeError",
-      "message": "Simulated tool failure.",
-      "recovered": false,
-      "retry_attempted": true
-    }
-  ]
-}
+NOTES:
+['learning about middleware']
 
 Conclusion
 ==========
 
-Error handling middleware catches exceptions from tools. It can report errors safely, fall back to default values, or flag the error for retry. Without it, unhandled tool errors propagate up and break the agent loop.
+Error handling middleware catches exceptions from tools and returns a controlled message. The agent loop can continue instead of crashing.

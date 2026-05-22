@@ -2,52 +2,36 @@
 
 ## Goal
 
-Show how error handling middleware catches and manages exceptions from tool execution.
+Show how middleware can catch an error from the action and return a
+controlled message instead of crashing.
 
-## What changed from Lab 17
+## Progression
 
-Lab 17 checked if a tool is allowed before it runs.
+- Lab 16 = block bad input
+- Lab 17 = block unauthorised tools
+- Lab 18 = catch tool/action errors
 
-This lab handles what happens when a tool fails during execution.
+## Core flow
 
-## Error handling patterns
-
-```python
-class ErrorHandlingMiddleware:
-    def handle_tool_error(self, tool_name, error) -> str:
-        # Catches the exception, logs it, and returns a safe message.
-        # Prevents the error from propagating.
-
-    def handle_with_fallback(self, tool_name, error, fallback_value) -> str:
-        # Catches the exception and returns a fallback value.
-        # Used when partial failure is acceptable.
-
-    def handle_with_retry(self, tool_name, error) -> str:
-        # Catches the exception and records retry configuration.
-        # The actual retry loop would run in the request handler.
+```
+request
+-> middleware
+-> action runs
+-> if action succeeds: return result
+-> if action fails: catch error and return controlled message
 ```
 
-## Why this matters
+## Tools
 
-Tools fail. Networks time out, files are missing, data is malformed.
+| Tool        | Behaviour                    |
+|-------------|------------------------------|
+| `safe_note` | Adds the note, succeeds      |
+| `risky_note`| Raises `ValueError`          |
 
-Without error handling middleware:
+## Files
 
-- A single tool failure crashes the agent loop.
-- No recovery is possible.
-- Errors propagate to the user as raw exceptions.
-
-With error handling middleware:
-
-- Errors are caught at the middleware layer.
-- The agent can continue.
-- Safe fallbacks or retries are possible.
-- Error logs are useful for debugging.
-
-## Files in this lab
-
-```txt
-src/18_error_handling_middleware/
+```
+src/part_04_middleware/lab_18_error_handling_middleware/
 ├── README.md
 ├── main.py
 └── expected_output.txt
@@ -56,21 +40,22 @@ src/18_error_handling_middleware/
 ## Run
 
 ```bash
-uv run python -m src.18_error_handling_middleware.main
+uv run python -m src.part_04_middleware.lab_18_error_handling_middleware.main
 ```
 
 ## Expected behaviour
 
 This lab is deterministic and does not call the model.
 
-The important behaviour is:
-
-- `RuntimeError` from a tool is caught and reported safely.
-- `KeyError` from a lookup tool is caught and reported.
-- A fallback value is returned when a tool fails.
-- Retry info is recorded from context.
-- The error log tracks all errors with type and message.
+- `safe_note` succeeds and the note is added.
+- `risky_note` raises `ValueError`, which is caught by the middleware.
+- The middleware returns a controlled error message instead of crashing.
+- An unknown tool name returns an error message.
+- Valid notes are preserved across calls.
 
 ## Learning point
 
-Error handling middleware catches exceptions from tools. It can report errors safely, fall back to default values, or flag the error for retry. Without it, unhandled tool errors propagate up and break the agent loop.
+Error handling middleware wraps tool execution in a try/except. When a tool
+raises an exception, the middleware catches it and returns a controlled error
+message instead of letting the exception propagate. This keeps the agent loop
+running.
