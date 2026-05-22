@@ -1,64 +1,54 @@
 # 14 Middleware Concept
 
-## Goal
+## Teaching goal
 
-Show the middleware concept using deterministic Python functions.
+Middleware is code that runs around the agent.
+It can observe, modify, block, or wrap execution without putting that logic inside every tool.
 
-## What changed from Lab 12
+## What you will learn
 
-Lab 12 placed production controls directly inside the request flow.
+Middleware wraps work with code that runs before and after the main action.
 
-This lab moves those controls into middleware-style functions.
-
-## What middleware does
-
-Middleware runs before the tool.
-
-In this lab, middleware handles:
-
-1. Input validation.
-2. Tool authorisation.
-3. Audit tracing.
-
-If middleware blocks a request, the tool does not run.
-
-## Why this matters
-
-Without middleware, every request handler or tool must remember to perform the same checks.
-
-With middleware, common controls are centralised.
-
-This makes the agent easier to maintain and safer to extend.
-
-## Files in this lab
+## What is inside
 
 ```txt
-src/14_middleware_concept/
+src/part_04_middleware/lab_14_middleware_concept/
 ├── README.md
 ├── main.py
 └── expected_output.txt
 ```
 
-## Run
+## How to run
 
 ```bash
-uv run python -m src.14_middleware_concept.main
+uv run python -m src.part_04_middleware.lab_14_middleware_concept.main
 ```
 
 ## Expected behaviour
 
-This lab is deterministic and does not call the model.
+The lab is deterministic. No model is called.
 
-The important behaviour is:
+1. The first call runs without middleware.
+2. The second call runs with middleware.
+3. The middleware prints one line before the action.
+4. The middleware prints one line after the action.
+5. The middleware does not block, modify, authorise, or handle errors. It only observes.
 
-Valid requests pass through middleware and reach the tool.
-Empty input is blocked before the tool runs.
-Unauthorised tools are blocked before the tool runs.
-Audit middleware records successful middleware passage.
-Tool logic stays focused on the actual operation.
+## Why this order matters
+
+The next labs build on this foundation:
+
+| Lab | What it adds |
+|-----|-------------|
+| 14  | Middleware concept: before / after observation |
+| 15  | Hooks: `before_tool` / `after_tool` |
+| 16  | Input validation middleware |
+| 17  | Tool authorisation middleware |
+| 18  | Error handling middleware |
+| 19  | Built-in middleware |
+| 20  | Middleware execution order |
 
 ## Learning point
 
-Middleware separates control logic from business/tool logic.
-
-That separation is one of the foundations of production-ready agents.
+Separating observation from action is the first step toward production-grade middleware.
+Once you can see what the agent does, you can later decide what to allow, block, or change.
