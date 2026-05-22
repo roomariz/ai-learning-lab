@@ -2,46 +2,53 @@
 
 ## Goal
 
-Show how middleware can implement hooks for lifecycle phases: before_request, after_request, and on_error.
+Show the main places where middleware-style logic can run around an agent action.
 
-## What changed from Lab 13
+## What changed from Lab 14
 
-Lab 13 had flat middleware functions that return early on block.
+Lab 14 showed the basic idea:
 
-This lab introduces a `MiddlewareWithHooks` class that tracks `before_request` and `after_request` calls around every request, regardless of whether it passes or is blocked.
+```txt
+before → action → after
+```
+
+This lab expands that idea into more specific hook points:
+
+```txt
+before_agent → before_tool → tool → after_tool → after_agent
+```
 
 ## Hook phases
 
 ```python
-class MiddlewareWithHooks:
-    def before_request(self, runtime, request) -> None:
-        """Called before checks run."""
+def before_agent(user_message: str) -> None:
+    ...
 
-    def check(self, runtime, request) -> str | None:
-        """Validation or authorisation logic."""
+def before_tool(tool_name: str) -> None:
+    ...
 
-    def after_request(self, runtime, request, result) -> None:
-        """Called after the request is handled."""
+def after_tool(tool_name: str, result: str) -> None:
+    ...
 
-    def on_error(self, runtime, request, error) -> None:
-        """Called when an exception propagates."""
+def after_agent(final_result: str) -> None:
+    ...
 ```
 
 ## Why this matters
 
-Hooks separate lifecycle concerns:
+Different middleware concerns belong at different points in the lifecycle:
 
-- `before_request`: logging, metrics, request ID.
-- `check`: validation, authorisation.
-- `after_request`: response logging, audit trails.
-- `on_error`: error recovery, alerting.
+* `before_agent`: logging, input checks, request setup
+* `before_tool`: tool authorisation, rate limits, tool logging
+* `after_tool`: output checks, tool result logging
+* `after_agent`: final logging, metrics, cleanup
 
-This avoids mixing cross-cutting concerns into business logic.
+This keeps cross-cutting concerns separate from the tool’s main job.
 
 ## Files in this lab
 
 ```txt
-src/15_middleware_hooks/
+src/part_04_middleware/lab_15_middleware_hooks/
 ├── README.md
 ├── main.py
 └── expected_output.txt
@@ -50,20 +57,24 @@ src/15_middleware_hooks/
 ## Run
 
 ```bash
-uv run python -m src.15_middleware_hooks.main
+uv run python -m src.part_04_middleware.lab_15_middleware_hooks.main
 ```
 
 ## Expected behaviour
 
-This lab is deterministic and does not call the model.
+This lab is deterministic. No model is called.
 
 The important behaviour is:
 
-- All three middleware instances log `before_request` on every request.
-- All three log `after_request` after every request (blocked or passed).
-- The `hook_log` tracks the full sequence.
-- Tool calls and blocked counts are recorded.
+1. `before_agent` runs first.
+2. `before_tool` runs before the tool.
+3. The tool runs and adds a note.
+4. `after_tool` runs after the tool.
+5. `after_agent` runs last.
+6. The printed output shows the full execution order.
 
 ## Learning point
 
-Hooks give middleware a lifecycle. This makes it easier to add logging, metrics, or cleanup without mixing it into business logic.
+Hooks give middleware clear lifecycle points.
+
+Once you know where middleware runs, later labs can use those hook points for validation, authorisation, error handling, logging, and message trimming.
