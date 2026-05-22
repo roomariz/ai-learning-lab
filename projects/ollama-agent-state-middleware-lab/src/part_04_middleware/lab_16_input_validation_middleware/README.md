@@ -2,53 +2,41 @@
 
 ## Goal
 
-Show how a dedicated input validation middleware checks messages before they reach tools.
+Show how middleware can block bad input before the main action runs.
 
-## What changed from Lab 13
+## What changed from Lab 15
 
-Lab 13 bundled validation inside a generic middleware function.
+Lab 15 showed hook points that observe actions. This lab adds a decision:
+the middleware can **block** execution, not just observe.
 
-This lab isolates input validation into its own `ValidationMiddleware` class with focused checks:
-
-1. Length (min and max).
-2. Empty check.
-3. Pattern matching (blocked and allowed).
-4. Sanitisation (control characters, whitespace).
-
-## Validation checks
-
-```python
-class ValidationMiddleware:
-    def validate_length(self, message) -> str | None:
-        # Rejects messages outside [min, max] length.
-
-    def validate_patterns(self, message) -> str | None:
-        # Blocks messages matching blocked_patterns.
-        # Requires at least one allowed_pattern match.
-
-    def validate_not_empty(self, message) -> str | None:
-        # Rejects empty or whitespace-only messages.
-
-    def validate_sanitised(self, message) -> str | None:
-        # Rejects control characters.
-        # Logs sanitisation (e.g. whitespace stripping).
+```txt
+user_message → validation middleware → if valid: run action
+                                    → if invalid: block before action
 ```
 
-## Why this matters
+## The validation middleware
 
-Input is the most common attack surface.
+```python
+def validate_input(user_message: str) -> str | None:
+    if not user_message.strip():
+        return "Blocked: message is empty."
 
-Validation middleware:
+    blocked_keywords = ["ignore", "override", "admin"]
+    for keyword in blocked_keywords:
+        if keyword in user_message.lower():
+            return f"Blocked: message contains restricted keyword '{keyword}'."
 
-- Stops empty or malformed messages early.
-- Enforces length constraints to prevent buffer issues.
-- Blocks XSS patterns and injection attempts.
-- Cleans input before it reaches business logic.
+    return None  # None means "valid, proceed"
+```
+
+The middleware returns:
+- `None` → valid, the action runs
+- A string → blocked, the action never runs
 
 ## Files in this lab
 
 ```txt
-src/16_input_validation_middleware/
+src/part_04_middleware/lab_16_input_validation_middleware/
 ├── README.md
 ├── main.py
 └── expected_output.txt
@@ -57,22 +45,20 @@ src/16_input_validation_middleware/
 ## Run
 
 ```bash
-uv run python -m src.16_input_validation_middleware.main
+uv run python -m src.part_04_middleware.lab_16_input_validation_middleware.main
 ```
 
 ## Expected behaviour
 
-This lab is deterministic and does not call the model.
+Deterministic. No model is called.
 
-The important behaviour is:
-
-- Empty input is blocked.
-- Too-short input is blocked.
-- Too-long input is blocked.
-- XSS patterns are blocked.
-- Valid input passes all checks.
-- The validation log tracks every check.
+1. Empty message → blocked by middleware, action never runs.
+2. Message with "override" → blocked by middleware, action never runs.
+3. Valid message → middleware passes, action runs, note is added.
 
 ## Learning point
 
-Input validation middleware protects the system from bad or malicious input. Length limits, pattern blocks, and sanitisation checks prevent common attacks and errors before they reach the tool layer.
+Middleware can block before work happens.
+
+Validation is the simplest case: check the input, reject it early if it fails.
+The core action never needs to think about input validation.

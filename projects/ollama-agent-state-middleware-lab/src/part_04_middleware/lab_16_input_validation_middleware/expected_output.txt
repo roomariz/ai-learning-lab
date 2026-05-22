@@ -1,130 +1,37 @@
 16 Input Validation Middleware
-===============================
-
-INITIAL CONTEXT:
-{
-  "user_id": "learner-001",
-  "role": "learner",
-  "environment": "local",
-  "min_input_length": 3,
-  "max_input_length": 120,
-  "allowed_patterns": [
-    "\\w+"
-  ],
-  "blocked_patterns": [
-    "<script",
-    "javascript:",
-    "on\\w+="
-  ]
-}
-
-Step 1: empty input is blocked
 ==============================
 
-INPUT:
-''
+Scenario 1: empty message
+=========================
+[validation middleware] blocked: Blocked: message is empty.
 
 RESULT:
 Blocked: message is empty.
 
-Step 2: too-short input is blocked
-===================================
+NOTES:
+[]
 
-INPUT:
-'ab'
-
-RESULT:
-Blocked: message too short (min 3)
-
-Step 3: too-long input is blocked
-==================================
-
-INPUT:
-'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...'
-
-LENGTH:
-200
+Scenario 2: blocked keyword 'override'
+======================================
+[validation middleware] blocked: Blocked: message contains restricted keyword 'override'.
 
 RESULT:
-Blocked: message too long (max 120)
+Blocked: message contains restricted keyword 'override'.
 
-Step 4: XSS pattern is blocked
-==============================
+NOTES:
+[]
 
-INPUT:
-"<script>alert('xss')</script>"
-
-RESULT:
-Blocked: message contains a restricted pattern.
-
-Step 5: valid input passes
-===========================
-
-INPUT:
-'Add a note about input validation.'
-
-RESULT:
-passed
-
-Input validation summary
+Scenario 3: valid message
 =========================
+[validation middleware] passed: running action
 
-SUMMARY:
-Input validation middleware runs before the tool.
-It checks length, patterns, emptiness, and sanitisation.
-Total validations: 0
-Blocked inputs: 4
+RESULT:
+note added: Add a note about validation middleware
 
-VALIDATION LOG:
-[
-  "input_validator: not empty",
-  "input_validator: blocked - empty",
-  "input_validator: not empty",
-  "input_validator: length OK",
-  "input_validator: blocked - too short (min 3)",
-  "input_validator: not empty",
-  "input_validator: length OK",
-  "input_validator: blocked - too long (max 120)",
-  "input_validator: not empty",
-  "input_validator: length OK",
-  "input_validator: blocked - matched pattern '<script'",
-  "input_validator: not empty",
-  "input_validator: length OK",
-  "input_validator: pattern '\\w+' matched"
-]
-
-FINAL STATE:
-{
-  "learner_name": "Muhammad",
-  "current_topic": "input_validation_middleware",
-  "completed_topics": [
-    "production_ready_agents",
-    "middleware_concept",
-    "middleware_hooks"
-  ],
-  "last_action": "blocked_pattern:<script",
-  "notes": [],
-  "validation_count": 0,
-  "blocked_count": 4,
-  "validation_log": [
-    "input_validator: not empty",
-    "input_validator: blocked - empty",
-    "input_validator: not empty",
-    "input_validator: length OK",
-    "input_validator: blocked - too short (min 3)",
-    "input_validator: not empty",
-    "input_validator: length OK",
-    "input_validator: blocked - too long (max 120)",
-    "input_validator: not empty",
-    "input_validator: length OK",
-    "input_validator: blocked - matched pattern '<script'",
-    "input_validator: not empty",
-    "input_validator: length OK",
-    "input_validator: pattern '\\w+' matched"
-  ]
-}
+NOTES:
+['Add a note about validation middleware']
 
 Conclusion
 ==========
 
-Input validation middleware protects the system from bad or malicious input. Length limits, pattern blocks, and sanitisation checks prevent common attacks and errors before they reach the tool layer.
+Input validation middleware blocks invalid messages before the action runs. The action never executes when validation fails. This keeps validation separate from the core action logic.
