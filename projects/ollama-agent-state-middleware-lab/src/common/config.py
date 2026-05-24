@@ -30,7 +30,7 @@ def load_config() -> AppConfig:
 
     model_provider = getenv("MODEL_PROVIDER", "ollama").lower()
 
-    ollama_model = getenv("OLLAMA_MODEL", "qwen2.5-coder:7b")
+    ollama_model = getenv("OLLAMA_MODEL", "qwen3:8b")
     ollama_base_url = getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 
     openrouter_api_key = getenv("OPENROUTER_API_KEY")

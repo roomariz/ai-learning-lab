@@ -1,34 +1,68 @@
 20 Middleware Execution Order
-==============================
+=============================
 
-This lab demonstrates the execution order of multiple middleware instances.
-before_model hooks run in registration order.
-after_model hooks run in reverse registration order.
+Scenario 1: Normal flow
+-------------------------
 
-Middleware registered: [A, B]
-Expected order:
-  [A] before_model
-  [B] before_model
-  [model call]
-  [B] after_model
-  [A] after_model
+[logging] before
+[validation] passed
+[authorisation] passed
+[tool] running add_note
+[logging] after
 
--------------------------------------------------------------------------------
-[config] Project root: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab
-[config] .env path: D:\workspace\open-source\ai-learning-lab\projects\ollama-agent-state-middleware-lab\.env
-[config] .env loaded: True
-[config] MODEL_PROVIDER: ollama
-[config] OLLAMA_MODEL: qwen2.5-coder:7b
-[config] OLLAMA_BASE_URL: http://localhost:11434
-[A] before_model
-[B] before_model
-[B] after_model
-[A] after_model
--------------------------------------------------------------------------------
+RESULT:
+note added: buy groceries
 
-Agent response: Hello!
+NOTES:
+['buy groceries']
+
+Scenario 2: Validation blocks
+-------------------------------
+
+[logging] before
+[validation] blocked
+[logging] after
+
+RESULT:
+Blocked before running add_note
+
+NOTES:
+['buy groceries']
+
+Scenario 3: Authorisation blocks
+----------------------------------
+
+[logging] before
+[validation] passed
+[authorisation] blocked
+[logging] after
+
+RESULT:
+Blocked before running delete_all
+
+NOTES:
+['buy groceries']
+
+Scenario 4: Tool crashes, error handler catches
+-------------------------------------------------
+
+[logging] before
+[validation] passed
+[authorisation] passed
+[tool] running risky_note
+[error handler] caught ValueError
+[logging] after
+
+RESULT:
+Error (ValueError): invalid note: correct input
+
+NOTES:
+['buy groceries']
 
 Conclusion
 ----------
 
-Middleware execution follows a predictable nesting pattern. before_model runs in registration order; after_model runs in reverse. This allows middleware to wrap the model call cleanly.
+Middleware execution order determines system behaviour.
+Validation must run before authorisation before tool execution.
+Error handling wraps risky execution, and logging wraps everything.
+Order matters. Same middleware, different order, different outcome.

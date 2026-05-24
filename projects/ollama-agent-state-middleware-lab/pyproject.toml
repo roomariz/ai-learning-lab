@@ -41,5 +41,7 @@ lab18 = "python -m src.part_04_middleware.lab_18_error_handling_middleware.main"
 lab19 = "python -m src.part_04_middleware.lab_19_builtin_middleware.main"
 lab20 = "python -m src.part_04_middleware.lab_20_middleware_execution_order.main"
 
+lab21 = "python -m src.part_05_production_middleware.lab_21_learning_agent_baseline.app"
+
 [tool.uv]
 package = false
