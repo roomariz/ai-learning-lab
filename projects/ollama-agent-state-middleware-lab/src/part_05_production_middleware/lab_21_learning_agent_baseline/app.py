@@ -84,7 +84,7 @@ def main() -> None:
         "- No validation: empty, huge, or malicious input goes straight through\n"
         "- No logging: zero observability into agent decisions\n"
         "- No retries: a single tool failure kills the call\n"
-        "- No trimming: context window grows unbounded across turns\n"
+        "- No trimming: long message histories are not shortened before the model runs\n"
         "- No error boundaries: unhandled exceptions crash the agent\n"
         "\nLab 22 will add tool authorisation middleware."
     )

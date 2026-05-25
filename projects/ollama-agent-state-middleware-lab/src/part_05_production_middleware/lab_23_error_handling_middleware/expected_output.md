@@ -37,16 +37,17 @@ After function call
 ```
 
 ### Key Concepts:
-1. **Decorator Function**: `my_decorator` takes a function (`func`) and returns a new function (`wrapper`) that adds extra behavior.
-2. **`@` Syntax**: The `@my_decorator` line applies the decorator to `say_hello()`.
-3. **No Code Changes**: The original `say_hello()` doesn't need to know about the decorator.
+1. **`my_decorator`** is a function that takes another function (`func`) as input.
+2. **`wrapper()`** is a nested function that adds extra behavior (like logging) before/after the original function.
+3. The **`@my_decorator`** syntax applies the decorator to `say_hello()`.
 
 ### Common Uses:
 - Logging (e.g., tracking when a function runs)
 - Access control (e.g., checking permissions)
-- Caching (e.g., memoizing results)
+- Timing functions (e.g., measuring execution speed)
+- Caching results (e.g., memoization)
 
-Decorators are like "superpowers" for functions—they let you add features cleanly and reuse code! 🦸‍♂️
+Decorators are powerful because they let you **separate concerns**—adding features without "polluting" the original function's code. 🌟
 
 
 Broken Tool Is Handled Safely
@@ -58,10 +59,12 @@ Use broken_quiz_generator for Python decorators
 TOOL:
 The tool 'broken_quiz_generator' failed safely.
 Reason: Quiz service is temporarily unavailable
-Please try again with a clearer learning request.
+Tell the user the request failed safely.
+Do not offer alternatives.
+Do not invent a replacement workflow.
 
 ASSISTANT:
-It seems the quiz generation service is currently unavailable. While I can't generate quizzes right now, I can help explain Python decorators in simple terms. Would you like me to provide a clear explanation of decorators and their use cases?
+The quiz service is temporarily unavailable, so I cannot generate a quiz at this time. Please try again later.
 
 
 What Changed?

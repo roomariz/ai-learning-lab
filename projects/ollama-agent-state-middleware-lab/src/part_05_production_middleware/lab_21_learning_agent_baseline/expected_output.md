@@ -123,7 +123,7 @@ This baseline runs with zero production safeguards:
 - No validation: empty, huge, or malicious input goes straight through
 - No logging: zero observability into agent decisions
 - No retries: a single tool failure kills the call
-- No trimming: context window grows unbounded across turns
+- No trimming: long message histories are not shortened before the model runs
 - No error boundaries: unhandled exceptions crash the agent
 
 Lab 22 will add tool authorisation middleware.

@@ -13,25 +13,14 @@ MESSAGES:
 [trim] reduced messages from 8 to 3
 
 ASSISTANT:
-Python decorators are a way to modify or enhance functions **without changing their original code**. Think of them as special "wrappers" that add functionality to existing functions, like adding extra features to a tool.
+Decorators in Python are a way to modify or enhance functions **without changing their code**. Think of them as special "wrappers" that add functionality to existing functions. They are defined using the `@` symbol followed by the decorator's name.
 
-### How They Work
-1. **Syntax**: Decorators use the `@` symbol. For example:
-   ```python
-   @decorator
-   def my_function():
-       pass
-   ```
-   This is equivalent to:
-   ```python
-   def my_function():
-       pass
-   my_function = decorator(my_function)
-   ```
+### How They Work:
+1. A decorator is itself a function that takes another function as input.
+2. It returns a new function that wraps the original one, adding extra behavior (like logging, timing, or authentication).
+3. The `@decorator` syntax is shorthand for wrapping the function.
 
-2. **Core Idea**: A decorator is a function that takes another function as input and returns a new function. This new function wraps the original one, adding behavior (e.g., logging, timing, access control).
-
-### Example
+### Example:
 ```python
 def my_decorator(func):
     def wrapper():
@@ -46,21 +35,20 @@ def say_hello():
 
 say_hello()
 ```
-**Output**:
+
+### Output:
 ```
 Before function call
 Hello!
-After function
+After function call
 ```
 
-### Common Use Cases
-- **Logging**: Track when a function is called.
-- **Access Control**: Restrict function access based on user roles.
-- **Caching**: Store results of expensive function calls.
-- **Timing**: Measure how long a function takes to run.
+### Key Use Cases:
+- Logging: Track when a function is called.
+- Timing: Measure how long a function takes to run.
+- Authentication: Check if a user is logged in before executing a function.
 
-### Why Use Decorators?
-They promote **reusability** and **clean code** by separating concerns (e.g., keeping business logic separate from logging). However, overusing them can make code harder to read, so use them judiciously!
+Decorators make code cleaner by separating concerns (e.g., keeping business logic separate from logging).
 
 
 Example 2: No Fresh User Request

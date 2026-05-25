@@ -3,36 +3,27 @@
 
 USER:
 Explain Python decorators
-[log] 2026-05-25 13:50:07 agent started
-[log] model input messages: 1
+[log] 2026-05-25 14:53:04 agent started
+[log] model input messages (pre-model state): 1
 [log] tool started: explain_topic
 [log] tool finished: explain_topic
-[log] model input messages: 3
-[log] 2026-05-25 13:50:38 agent finished
+[log] model input messages (pre-model state): 3
+[log] 2026-05-25 14:55:06 agent finished
 [log] final message count: 4
 
 TOOL:
 Python decorators: explanation with simple concepts and examples.
 
 ASSISTANT:
-Python decorators are a way to modify or enhance functions **without changing their code**. Think of them as special "wrappers" that add extra functionality to existing functions. They’re like a jacket you can put around a function to add features like logging, timing, or access control.
+Python decorators are a way to **add functionality to existing functions** without modifying their code. Think of them as "wrappers" that surround a function, letting you enhance its behavior before or after it runs.
 
----
-
-### 🧠 How They Work (Simplified)
-1. **A decorator is a function** that takes another function as input.
-2. It returns a **new function** that wraps the original one, adding behavior before or after the original function runs.
-3. You use the `@` symbol to apply the decorator to a function.
-
----
-
-### 📌 Example: A Simple Decorator
+### Simple Example:
 ```python
 def my_decorator(func):
     def wrapper():
-        print("Before the function runs!")
+        print("Before function call")
         func()  # Call the original function
-        print("After the function runs!")
+        print("After function call")
     return wrapper
 
 @my_decorator
@@ -42,37 +33,34 @@ def say_hello():
 say_hello()
 ```
 
-**Output:**
+### Output:
 ```
-Before the function runs!
+Before function call
 Hello!
-After the function runs!
+After function call
 ```
 
----
+### Key Concepts:
+1. **`my_decorator`** is a function that takes another function (`func`) as input.
+2. **`wrapper()`** is a nested function that adds extra logic (e.g., logging, validation) and calls the original function.
+3. The **`@my_decorator`** syntax is shorthand for `say_hello = my_decorator(say_hello)`.
 
-### 🚀 Key Use Cases
-- **Logging**: Track when a function is called.
-- **Timing**: Measure how long a function takes to run.
-- **Access Control**: Restrict who can use a function.
-- **Caching**: Store results of expensive function calls.
+### Common Uses:
+- Logging (e.g., tracking when a function runs)
+- Access control (e.g., checking permissions)
+- Timing functions (e.g., measuring execution speed)
 
----
-
-### 🧩 Why Use Decorators?
-They keep code clean and reusable. Instead of writing repetitive code (e.g., logging inside every function), you can define a decorator once and apply it to multiple functions.
-
-Would you like a coding practice question to test your understanding? 😊
+Decorators are powerful because they let you keep code clean and reusable! 🚀
 
 
 USER:
 Generate a practice question about Python decorators
-[log] 2026-05-25 13:50:38 agent started
-[log] model input messages: 1
+[log] 2026-05-25 14:55:06 agent started
+[log] model input messages (pre-model state): 1
 [log] tool started: generate_practice_question
 [log] tool finished: generate_practice_question
-[log] model input messages: 3
-[log] 2026-05-25 13:51:06 agent finished
+[log] model input messages (pre-model state): 3
+[log] 2026-05-25 14:57:34 agent finished
 [log] final message count: 4
 
 TOOL:
@@ -81,29 +69,35 @@ Practice question for Python decorators: Write a decorator called `log_call` tha
 ASSISTANT:
 Here's the solution:
 
-**Code:**
 ```python
+# Define the decorator
 def log_call(func):
     def wrapper(*args, **kwargs):
         print(f"Calling {func.__name__}")
-        return func(*args, **kwargs)
+        result = func(*args, **kwargs)
+        return result
     return wrapper
 
+# Apply decorator to a function
 @log_call
 def add(a, b):
     return a + b
 
-# Example usage
-add(3, 5)
+# Test the decorated function
+add(3, 4)
 ```
 
 **Expected Output:**
 ```
 Calling add
-8
+7
 ```
 
-The decorator prints "Calling add" before executing the function, then returns the result of the addition.
+**Explanation:**  
+The decorator `log_call` wraps the `add` function. When `add(3,4)` is called:  
+1. It first prints "Calling add"  
+2. Then executes the original function logic (3 + 4)  
+3. Returns the result (7)
 
 
 What Changed?
