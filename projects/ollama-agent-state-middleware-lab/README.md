@@ -45,6 +45,14 @@ The project is local-first. Ollama is the default model provider, with optional 
 │       ├── lab_18_error_handling_middleware/
 │       ├── lab_19_builtin_middleware/
 │       └── lab_20_middleware_execution_order/
+│   └── part_05_production_middleware/
+            ├── lab_21_learning_agent_baseline/
+            ├── lab_22_tool_authorisation_middleware/
+            ├── lab_23_error_handling_middleware/
+            ├── lab_24_message_trimming_middleware/
+            ├── lab_25_logging_middleware/
+            ├── lab_26_complete_production_learning_agent/
+            └── lab_27_interactive_production_learning_agent/
 └── data/
     └── state/
 ```
@@ -91,6 +99,18 @@ The project is local-first. Ollama is the default model provider, with optional 
 |  19 | Builtin middleware           | Reusable middleware components                             |
 |  20 | Middleware execution order   | Controls middleware execution order                         |
 
+### Part 5: Production Middleware (Labs 21-27)
+
+| Lab | Topic | Purpose |
+| --: | ----- | ------- |
+| 21 | Learning agent baseline | Baseline learning agent without middleware |
+| 22 | Tool authorisation middleware | Blocks premium tools for free users |
+| 23 | Error handling middleware | Handles tool failures safely |
+| 24 | Message trimming middleware | Keeps recent messages and trims old context |
+| 25 | Logging middleware | Adds observability around model and tool execution |
+| 26 | Complete production learning agent | Composes all middleware layers |
+| 27 | Interactive production learning agent | Runs the production agent in terminal chat |
+
 ## Prerequisites
 
 Install and run Ollama locally:
@@ -99,10 +119,22 @@ Install and run Ollama locally:
 ollama serve
 ```
 
-Pull a local model:
+## Recommended Ollama Models
+
+This lab is designed to work best with a small local model set:
+
+| Model | Purpose |
+|---|---|
+| `qwen3:14b` | Main agent model for LangChain agents, tool calling, reasoning, and middleware labs |
+| `qwen2.5-coder:7b` | Coding-focused model for debugging, refactoring, and code generation |
+| `nomic-embed-text` | Embedding model for retrieval and RAG workflows |
+
+## Install Models
 
 ```bash
+ollama pull qwen3:14b
 ollama pull qwen2.5-coder:7b
+ollama pull nomic-embed-text
 ```
 
 Confirm the model is available:
@@ -110,6 +142,8 @@ Confirm the model is available:
 ```bash
 ollama list
 ```
+
+For more details (including how to wire these models into `.env`), see `docs/model_setup.md`.
 
 ## Setup with uv
 
@@ -131,7 +165,9 @@ Default local setup:
 ```env
 MODEL_PROVIDER=ollama
 
-OLLAMA_MODEL=qwen2.5-coder:7b
+OLLAMA_MODEL=qwen3:14b
+OLLAMA_CODER_MODEL=qwen2.5-coder:7b
+OLLAMA_EMBED_MODEL=nomic-embed-text
 OLLAMA_BASE_URL=http://localhost:11434
 
 OPENROUTER_API_KEY=
@@ -188,6 +224,8 @@ Message history
 → runtime context
 → production controls
 → middleware
+→ production middleware composition
+→ interactive production agent
 ```
 
 ## Design principle
