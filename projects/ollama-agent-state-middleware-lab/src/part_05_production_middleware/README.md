@@ -12,3 +12,4 @@ Production-grade middleware patterns for real-world agent systems: tool authoris
 | 24 | `lab_24_message_trimming_middleware` | Keep long conversations within context limits |
 | 25 | `lab_25_logging_middleware` | Add observability through logging |
 | 26 | `lab_26_complete_production_learning_agent` | Compose the full production middleware stack |
+| 27 | `lab_27_interactive_production_learning_agent` | Interactive terminal demo |

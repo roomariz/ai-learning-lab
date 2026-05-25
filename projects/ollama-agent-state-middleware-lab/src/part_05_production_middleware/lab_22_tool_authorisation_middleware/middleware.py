@@ -27,3 +27,32 @@ class ToolAuthorisationMiddleware(AgentMiddleware):
             )
 
         return handler(request)
+
+
+class ToolLoopGuardMiddleware(AgentMiddleware):
+    """Stop the same tool being called repeatedly in one agent run."""
+
+    def __init__(self, max_same_tool_calls: int = 1):
+        super().__init__()
+        self.max_same_tool_calls = max_same_tool_calls
+        self.tool_counts: dict[str, int] = {}
+
+    def before_agent(self, state, runtime):
+        self.tool_counts = {}
+        return None
+
+    def wrap_tool_call(self, request, handler):
+        tool_name = request.tool_call["name"]
+        self.tool_counts[tool_name] = self.tool_counts.get(tool_name, 0) + 1
+
+        if self.tool_counts[tool_name] > self.max_same_tool_calls:
+            return ToolMessage(
+                content=(
+                    f"STOP: '{tool_name}' has already been used for this request.\n"
+                    "Do not call this tool again.\n"
+                    "Use the previous tool result and give the final answer."
+                ),
+                tool_call_id=request.tool_call["id"],
+            )
+
+        return handler(request)

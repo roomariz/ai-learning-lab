@@ -9,7 +9,11 @@ def explain_topic(topic: str) -> str:
 
 @tool
 def generate_practice_question(topic: str) -> str:
-    """Generate one practical coding question for the given topic."""
+    """
+    Generate exactly one practical coding question for the given topic.
+
+    Call this tool at most once per user request.
+    """
     return (
         f"Practice question for {topic}: "
         "Write a decorator called `log_call` that prints the wrapped function's "
