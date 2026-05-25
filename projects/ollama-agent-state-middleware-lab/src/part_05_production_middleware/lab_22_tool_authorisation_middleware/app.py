@@ -50,6 +50,13 @@ def invoke_and_print(prompt: str) -> None:
 
     elapsed = perf_counter() - start_time
 
+    for message in response["messages"]:
+        role = getattr(message, "type", "unknown")
+        content = getattr(message, "content", "")
+
+        if role == "tool" and content:
+            print_turn("tool", content)
+
     final_message = response["messages"][-1]
     print_turn("assistant", final_message.content)
     print(f"[time] invoke() took {elapsed:.2f} seconds\n")
