@@ -20,3 +20,4 @@ Purpose: Add the first production control: free users cannot access premium lear
 
 ```bash
 uv run python -m src.part_05_production_middleware.lab_22_tool_authorisation_middleware.app
+```

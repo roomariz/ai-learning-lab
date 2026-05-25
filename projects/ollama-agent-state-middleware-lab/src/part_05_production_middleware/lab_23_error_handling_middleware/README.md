@@ -13,3 +13,18 @@ This lab forces a tool crash to prove the middleware works:
 
 ```text
 Use broken_quiz_generator for Python decorators
+```
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `app.py` | Agent setup + demo failing tool |
+| `middleware.py` | Tool error handling middleware |
+| `tools.py` | Broken tool that always fails |
+
+## Run
+
+```bash
+uv run python -m src.part_05_production_middleware.lab_23_error_handling_middleware.app
+```
