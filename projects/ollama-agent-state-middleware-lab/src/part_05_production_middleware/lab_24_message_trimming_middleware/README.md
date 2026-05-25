@@ -6,6 +6,8 @@ Purpose: Keep long conversations manageable before they reach the model.
 
 Middleware can edit the agent state before the model sees it.
 
+This demo uses `max_messages=3` to make trimming obvious.
+
 This lab shows two cases:
 
 - A final user request survives trimming, so the agent can answer.

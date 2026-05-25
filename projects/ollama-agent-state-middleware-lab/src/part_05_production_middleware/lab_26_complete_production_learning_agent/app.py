@@ -65,9 +65,17 @@ def main() -> None:
     invoke_and_print("Explain Python decorators")
 
     print_section("Scenario 2: premium blocked")
+    print(
+        "Expect: ToolAuthorisationMiddleware returns a ToolMessage; "
+        "premium tool does not run.\n"
+    )
     invoke_and_print("Create a 7 day study plan for Python decorators")
 
     print_section("Scenario 3: tool failure")
+    print(
+        "Expect: error middleware catches the failing tool and returns a safe "
+        "ToolMessage.\n"
+    )
     invoke_and_print("Use broken_quiz_generator for Python decorators")
 
     print_section("Scenario 4: long history (trimming)")
@@ -95,4 +103,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

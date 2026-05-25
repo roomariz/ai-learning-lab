@@ -24,6 +24,8 @@ This capstone demonstrates:
 - long-history message trimming
 - lifecycle logging
 
+Order matters: message trimming runs before logging so logging reflects trimmed pre-model state.
+
 ## Run
 
 ```bash
