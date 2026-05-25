@@ -19,7 +19,7 @@ from langchain.agents import create_agent
 
 from src.common.model import get_chat_model
 from src.common.printer import print_section, print_turn
-from src.part_05_production_middleware.lab_21_learning_agent_baseline.tools import (
+from src.part_05_production_middleware.shared.tools import (
     create_study_plan,
     explain_topic,
     generate_practice_question,

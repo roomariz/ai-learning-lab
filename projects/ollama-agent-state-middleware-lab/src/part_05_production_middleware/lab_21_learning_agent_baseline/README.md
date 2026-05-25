@@ -20,7 +20,7 @@ middleware controls are introduced.
 | File | Purpose |
 |------|---------|
 | `app.py` | Agent creation and invocation |
-| `tools.py` | Four learning tools (explain, question, grade, plan) |
+| `tools.py` | Re-export of the shared learning tools |
 | `expected_output.md` | Sample console output |
 
 ## Run
