@@ -15,8 +15,9 @@ def handle_tool_errors(request, handler):
             content=(
                 f"The tool '{tool_name}' failed safely.\n"
                 f"Reason: {str(exc)[:120]}\n"
-                "Please try again with a clearer learning request."
+                "Tell the user the request failed safely.\n"
+                "Do not offer alternatives.\n"
+                "Do not invent a replacement workflow."
             ),
             tool_call_id=request.tool_call["id"],
         )
-

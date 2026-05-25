@@ -12,10 +12,10 @@ from src.common.printer import print_section, print_turn
 from src.part_05_production_middleware.lab_23_error_handling_middleware.middleware import (
     handle_tool_errors,
 )
-from src.part_05_production_middleware.lab_23_error_handling_middleware.tools import (
+from src.part_05_production_middleware.shared.tools import (
     broken_quiz_generator,
+    explain_topic,
 )
-from src.part_05_production_middleware.shared.tools import explain_topic
 
 model = get_chat_model()
 

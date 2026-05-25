@@ -13,9 +13,9 @@ class LoggingMiddleware(AgentMiddleware):
 
     def before_model(self, state, runtime):
         messages = state.get("messages", [])
-        print(f"[log] model input messages: {len(messages)}")
+        print(f"[log] model input messages (pre-model state): {len(messages)}")
         return None
-
+    
     def wrap_tool_call(self, request, handler):
         tool_name = request.tool_call["name"]
         print(f"[log] tool started: {tool_name}")

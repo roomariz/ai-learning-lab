@@ -16,13 +16,14 @@ class ToolAuthorisationMiddleware(AgentMiddleware):
         if tool_name in self.premium_tools and self.user_tier != "premium":
             return ToolMessage(
                 content=(
-                    f"BLOCKED: '{tool_name}' is unavailable.\n"
+                    "BLOCKED: premium feature.\n"
                     "This tool requires premium access.\n"
-                    "Do not offer to recreate the same premium feature using other tools.\n"
-                    "Tell the user that premium access is required."
+                    "Tell the user this feature requires premium access.\n"
+                    "Do not offer alternatives.\n"
+                    "Do not suggest substitute tools.\n"
+                    "Do not recreate the blocked functionality."
                 ),
                 tool_call_id=request.tool_call["id"],
             )
 
         return handler(request)
-

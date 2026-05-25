@@ -1,8 +1,3 @@
-from langchain.tools import tool
+from src.part_05_production_middleware.shared.tools import broken_quiz_generator
 
-
-@tool
-def broken_quiz_generator(topic: str) -> str:
-    """Simulate a failing quiz generation service."""
-    raise RuntimeError("Quiz service is temporarily unavailable")
-
+__all__ = ["broken_quiz_generator"]

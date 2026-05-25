@@ -29,3 +29,8 @@ def create_study_plan(subject: str, days: int) -> str:
     """Create a study plan."""
     return f"Created a {days}-day study plan for {subject}."
 
+
+@tool
+def broken_quiz_generator(topic: str) -> str:
+    """Simulate a failing quiz generation service."""
+    raise RuntimeError("Quiz service is temporarily unavailable")
