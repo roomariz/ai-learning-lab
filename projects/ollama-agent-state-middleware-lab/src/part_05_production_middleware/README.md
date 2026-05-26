@@ -16,3 +16,4 @@ Production-grade middleware patterns for real-world agent systems: tool authoris
 | 28 | `lab_28_rate_limiting_middleware` | Limit total tool calls per request |
 | 29 | `lab_29_tool_retry_middleware` | Retry transient tool failures |
 | 30 | `lab_30_cost_tracking_middleware` | Track request cost signals |
+| 31 | `lab_31_recursion_limit_and_tool_loop_safety` | Stop runaway tool loops safely |
