@@ -15,3 +15,4 @@ Production-grade middleware patterns for real-world agent systems: tool authoris
 | 27 | `lab_27_interactive_production_learning_agent` | Interactive terminal demo |
 | 28 | `lab_28_rate_limiting_middleware` | Limit total tool calls per request |
 | 29 | `lab_29_tool_retry_middleware` | Retry transient tool failures |
+| 30 | `lab_30_cost_tracking_middleware` | Track request cost signals |
