@@ -13,3 +13,4 @@ Production-grade middleware patterns for real-world agent systems: tool authoris
 | 25 | `lab_25_logging_middleware` | Add observability through logging |
 | 26 | `lab_26_complete_production_learning_agent` | Compose the full production middleware stack |
 | 27 | `lab_27_interactive_production_learning_agent` | Interactive terminal demo |
+| 28 | `lab_28_rate_limiting_middleware` | Limit total tool calls per request |
