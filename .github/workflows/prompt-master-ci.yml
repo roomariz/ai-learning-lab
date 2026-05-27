@@ -1,0 +1,33 @@
+name: Prompt Master CI
+
+on:
+  pull_request:
+    paths:
+      - "projects/prompt-master/**"
+      - ".github/workflows/prompt-master-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "projects/prompt-master/**"
+      - ".github/workflows/prompt-master-ci.yml"
+
+jobs:
+  static-smoke:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: projects/prompt-master
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify static entrypoint
+        run: test -f index.html
+
+      - name: Check HTML contains root document tags
+        run: |
+          grep -qi "<!DOCTYPE html" index.html
+          grep -qi "<title>" index.html
+
+      - name: Validate package metadata
+        run: node -e "JSON.parse(require('fs').readFileSync('package.json', 'utf8'))"
