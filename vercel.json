@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "bash projects/11-hf-provider-model-scanner/build_vercel.sh",
+  "outputDirectory": "projects/11-hf-provider-model-scanner/.vercel-output-static",
+  "installCommand": ""
+}
