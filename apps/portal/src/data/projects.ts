@@ -72,9 +72,10 @@ export const projects: Project[] = [
     description:
       "Static report UI for Hugging Face inference-provider model availability, latency, and agentic coding suitability.",
     category: "Evaluation",
-    status: "planned",
+    status: "live",
     deploymentTarget: "vercel",
     stack: ["Python", "Static HTML", "CSV", "JSON", "Hugging Face"],
+    liveUrl: "https://11-hf-provider-model-scanner.vercel.app/",
     sourceUrl: sourceUrl("projects/11-hf-provider-model-scanner"),
     sourcePath: "projects/11-hf-provider-model-scanner",
     localOnly: false,

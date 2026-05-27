@@ -24,6 +24,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Disable automatic server restart when web_report_server.py changes.",
     )
+    parser.add_argument(
+        "--export",
+        action="store_true",
+        help="Export the generated interactive HTML to stdout and exit.",
+    )
     return parser.parse_args()
 
 
@@ -546,6 +551,23 @@ def build_index(report_dir: Path) -> bytes:
 
     let DATA = null;
     const SOURCE_VERSION = '__SOURCE_VERSION__';
+    let isStatic = false;
+
+    function enableStaticMode() {
+      if (isStatic) return;
+      isStatic = true;
+      if (btn) btn.style.display = 'none';
+      if (statusEl) {
+        statusEl.innerHTML = '<b>static demo</b><span style="color:var(--muted2)">— generated from last scan</span>';
+      }
+      const links = document.querySelectorAll('.download-menu a');
+      links.forEach(a => {
+        const href = a.getAttribute('href');
+        if (href && href.startsWith('/files/')) {
+          a.setAttribute('href', './' + href.substring(7));
+        }
+      });
+    }
 
     function uniq(values) {
       return Array.from(new Set(values.filter(Boolean))).sort();
@@ -672,10 +694,26 @@ def build_index(report_dir: Path) -> bytes:
     async function loadSummary() {
       try {
         renderMetricSkeleton();
-        setTableState('loading', 'Loading latest report…', 'Fetching /api/summary');
-        const r = await fetch('/api/summary', { cache: 'no-store' });
+        const url = isStatic ? './hf_model_availability.json' : '/api/summary';
+        setTableState('loading', 'Loading latest report…', 'Fetching data...');
+        const r = await fetch(url, { cache: 'no-store' });
         if (!r.ok) throw new Error('no summary');
         DATA = await r.json();
+
+        if (DATA.generated_at) {
+          const genDate = new Date(DATA.generated_at);
+          let genEl = document.getElementById('generatedAt');
+          if (!genEl) {
+            genEl = document.createElement('p');
+            genEl.id = 'generatedAt';
+            genEl.style.margin = '4px 0 0';
+            genEl.style.color = 'var(--muted)';
+            genEl.style.fontSize = '11px';
+            document.querySelector('.overview-card .hd').appendChild(genEl);
+          }
+          genEl.textContent = 'Generated: ' + genDate.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+        }
+
         renderMetrics(DATA.summary || {});
         const providers = uniq((DATA.rows||[]).map(r => r.provider));
         const statuses = uniq((DATA.rows||[]).map(r => r.status));
@@ -690,18 +728,32 @@ def build_index(report_dir: Path) -> bytes:
         setTableState(null, '', '');
         renderTable();
       } catch (e) {
+        if (!isStatic) {
+          enableStaticMode();
+          loadSummary();
+          return;
+        }
         DATA = null;
         metricsEl.innerHTML = '';
         tbody.innerHTML = '';
         countEl.textContent = '0 shown';
         emptyStateEl.style.display = 'block';
-        setTableState('empty', 'No data loaded.', 'Click “Run scan” to fetch the latest info.');
+        if (isStatic) {
+          setTableState('empty', 'No data loaded.', 'Could not fetch hf_model_availability.json.');
+        } else {
+          setTableState('empty', 'No data loaded.', 'Click “Run scan” to fetch the latest info.');
+        }
       }
     }
 
     async function refreshStatus() {
+      if (isStatic) return;
       try {
         const r = await fetch('/api/status', { cache: 'no-store' });
+        if (r.status === 404) {
+          enableStaticMode();
+          return;
+        }
         const j = await r.json();
         const msg = j.running ? 'running…' : (j.last_finished ? ('last finished: ' + j.last_finished) : 'idle');
         const exitText = (j.last_exit === null || j.last_exit === undefined) ? '' : (' • exit ' + j.last_exit);
@@ -713,20 +765,25 @@ def build_index(report_dir: Path) -> bytes:
           loadSummary();
         }
       } catch (e) {
-        statusEl.textContent = 'status unavailable';
+        enableStaticMode();
       }
     }
 
     async function refreshSourceVersion() {
+      if (isStatic) return;
       try {
         const r = await fetch('/api/source-version', { cache: 'no-store' });
+        if (r.status === 404) {
+          enableStaticMode();
+          return;
+        }
         if (!r.ok) return;
         const j = await r.json();
         if (j.version && j.version !== SOURCE_VERSION) {
           window.location.reload();
         }
       } catch (e) {
-        // The server may be restarting. Try again on the next poll.
+        // ignore
       }
     }
 
@@ -769,8 +826,8 @@ def build_index(report_dir: Path) -> bytes:
 
 	    loadSummary();
 	    refreshStatus();
-	    setInterval(refreshStatus, 2000);
-	    setInterval(refreshSourceVersion, 1000);
+	    setInterval(() => { if (!isStatic) refreshStatus(); }, 2000);
+	    setInterval(() => { if (!isStatic) refreshSourceVersion(); }, 1000);
   </script>
 </body>
 </html>
@@ -943,6 +1000,11 @@ def main() -> int:
     args = parse_args()
     report_dir = (Path(__file__).parent / args.dir).resolve()
     report_dir.mkdir(parents=True, exist_ok=True)
+
+    if args.export:
+        body = build_index(report_dir)
+        sys.stdout.buffer.write(body)
+        return 0
 
     Handler.report_dir = report_dir
     server = ThreadingHTTPServer((args.host, args.port), Handler)

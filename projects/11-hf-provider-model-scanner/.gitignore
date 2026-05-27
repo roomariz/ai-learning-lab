@@ -1,3 +1,5 @@
 reports/*
 !reports/.gitkeep
 .vercel-output-static/
+
+.vercel

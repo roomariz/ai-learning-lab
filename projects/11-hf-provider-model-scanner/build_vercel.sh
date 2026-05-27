@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 set -eu
 
-PROJECT_DIR="projects/11-hf-provider-model-scanner"
+# Supports running from either:
+# - repo root (PROJECT_DIR points to subfolder), or
+# - scanner folder itself (PROJECT_DIR=".")
+if [ -f "README.md" ] && [ -f "hf_model_scanner.py" ]; then
+  PROJECT_DIR="."
+else
+  PROJECT_DIR="projects/11-hf-provider-model-scanner"
+fi
+
 OUT_DIR="$PROJECT_DIR/.vercel-output-static"
 
 rm -rf "$OUT_DIR"
@@ -10,11 +18,27 @@ mkdir -p "$OUT_DIR/src" "$OUT_DIR/reports"
 cp "$PROJECT_DIR"/README.md "$OUT_DIR"/README.md
 cp "$PROJECT_DIR"/*.py "$OUT_DIR"/src/
 
-for report in hf_model_availability.html hf_model_availability.json hf_model_availability.csv; do
+for report in hf_model_availability.json hf_model_availability.csv; do
   if [ -f "$PROJECT_DIR/reports/$report" ]; then
     cp "$PROJECT_DIR/reports/$report" "$OUT_DIR/reports/"
   fi
 done
+
+# Find Python executable
+if command -v python3 >/dev/null 2>&1; then
+  PYTHON_CMD="python3"
+elif command -v python >/dev/null 2>&1; then
+  PYTHON_CMD="python"
+elif [ -f "/c/Users/rooma/AppData/Local/Programs/Python/Python312/python.exe" ]; then
+  PYTHON_CMD="/c/Users/rooma/AppData/Local/Programs/Python/Python312/python.exe"
+elif [ -f "/c/Users/rooma/AppData/Local/Programs/Python/Python311/python.exe" ]; then
+  PYTHON_CMD="/c/Users/rooma/AppData/Local/Programs/Python/Python311/python.exe"
+else
+  PYTHON_CMD="python"
+fi
+
+# Compile the interactive web server template as the static demo report page
+$PYTHON_CMD "$PROJECT_DIR/web_report_server.py" --dir reports --export > "$OUT_DIR/reports/hf_model_availability.html"
 
 cat > "$OUT_DIR/index.html" <<'HTML'
 <!doctype html>
@@ -107,7 +131,7 @@ cat > "$OUT_DIR/index.html" <<'HTML'
     <section class="grid" aria-label="Project links">
       <a class="card" href="/README.md"><strong>README</strong><span>Usage, setup, report format, and scanner workflow.</span></a>
       <a class="card" href="/src/hf_model_scanner.py"><strong>Main scanner</strong><span>Provider discovery, probes, and report generation.</span></a>
-      <a class="card" href="/reports/hf_model_availability.html"><strong>HTML report</strong><span>Available when report artifacts are generated before deployment.</span></a>
+      <a class="card" href="/reports/hf_model_availability.html"><strong>Interactive demo dashboard</strong><span>Interactive dashboard with filters, search, and metrics.</span></a>
       <a class="card" href="/reports/hf_model_availability.json"><strong>JSON report</strong><span>Reusable scanner results for automation.</span></a>
     </section>
 
