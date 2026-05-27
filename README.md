@@ -8,6 +8,8 @@ A monorepo for hands-on AI and machine learning engineering projects.
 - `05-ai-dev-server`: AI developer tooling that generates, validates, runs and hot-reloads Express.js backends from natural language prompts.
 - `07-milvus-vector-store-lab`: citation-first document question answering with sentence-level retrieval and structured source traceability.
 - `08-ai-toolkit`: Ollama tool-calling framework with CLI and Streamlit interfaces, async execution, retry logic and structured logging.
+- `11-hf-provider-model-scanner`: Hugging Face inference-provider model scanner with availability probing, latency reporting and local HTML reports.
+- `prompt-master`: prompt optimization skill and browser interface for generating, fixing and adapting prompts across AI tools.
 
 ## Projects
 
@@ -24,6 +26,8 @@ A monorepo for hands-on AI and machine learning engineering projects.
 | 09 | `08-ai-toolkit` | Tool-calling framework | Implemented | [Live demo](https://ollama-toolbox-demo.streamlit.app/) |
 | 10 | `09-mcp-cli-project` | Model Context Protocol CLI and local LLM chat | Implemented | - |
 | 11 | `10-mcp-lab` | Model Context Protocol and LangChain integration | Implemented | - |
+| 12 | `11-hf-provider-model-scanner` | Hugging Face provider model availability scanning | Implemented | Local HTML report |
+| 13 | `prompt-master` | Prompt optimization skill and browser tool | Implemented | Local browser UI |
 
 ## Project Summaries
 
@@ -179,6 +183,36 @@ LangChain agent wired to a simple MCP math server, demonstrating MCP tool callin
 - LangChain MCP client
 - Automatic model selection
 - Iteration safety cap
+
+---
+
+### `11-hf-provider-model-scanner`
+
+Command-line toolkit for discovering, probing, benchmarking and reporting Hugging Face inference-provider model availability for agentic coding workflows.
+
+**Features**
+
+- Provider auto-discovery with built-in fallback providers
+- Coding and reasoning model filtering
+- Strict chat compatibility probes
+- Per-model latency measurement
+- CSV, JSON and HTML report generation
+- Local web report viewer with summary API
+
+---
+
+### `prompt-master`
+
+Prompt optimization skill and browser interface for generating, fixing and adapting prompts for Claude, ChatGPT, Gemini, Cursor, Copilot, image generators and other AI tools.
+
+**Features**
+
+- Tool-specific prompt optimization
+- Existing prompt repair and adaptation
+- Local browser interface
+- Prompt library support
+- Reusable Claude skill file
+- Prompting pattern references
 
 ## Setup
 
