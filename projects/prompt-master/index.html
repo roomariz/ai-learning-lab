@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Master</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0d0d;
+            --surface: #1a1a1a;
+            --surface-elevated: #242424;
+            --border: #333;
+            --text: #f5f5f5;
+            --text-dim: #8a8a8a;
+            --accent: #f97316;
+            --accent-dim: #fb923c;
+            --success: #22c55e;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .tagline {
+            color: var(--text-dim);
+            font-size: 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--text);
+        }
+
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        select, textarea, input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--accent-dim);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--surface-elevated);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: none;
+        }
+
+        .result.visible {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-meta {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .result-meta span {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .copy-btn {
+            padding: 0.5rem 1rem;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--border);
+        }
+
+        .prompt-output {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .saved-prompts {
+            margin-top: 2rem;
+        }
+
+        .saved-prompts h3 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: var(--text-dim);
+        }
+
+        .prompt-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .prompt-card:hover {
+            border-color: var(--accent);
+        }
+
+        .prompt-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .prompt-card-tool {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .prompt-card-date {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .prompt-card-preview {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .prompt-card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .prompt-card-actions button {
+            padding: 0.375rem 0.75rem;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .prompt-card-actions button:hover {
+            color: var(--text);
+            border-color: var(--text-dim);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-dim);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .tabs {
+                overflow-x: auto;
+            }
+
+            .tab {
+                padding: 0.5rem 1rem;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">⚡</div>
+                <span>Prompt Master</span>
+            </div>
+            <p class="tagline">Generate optimized prompts for any AI tool</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="generate">Generate</button>
+            <button class="tab" data-tab="update">Update</button>
+            <button class="tab" data-tab="library">Library</button>
+        </div>
+
+        <!-- Generate Panel -->
+        <div class="panel active" id="generate-panel">
+            <div class="form-group">
+                <label for="target-tool">Target AI Tool</label>
+                <select id="target-tool">
+                    <option value="">Select a tool...</option>
+                    <optgroup label="Reasoning LLMs">
+                        <option value="Claude">Claude</option>
+                        <option value="ChatGPT">ChatGPT / GPT-5.x</option>
+                        <option value="o3">o3 / o4-mini</option>
+                        <option value="Gemini">Gemini 2.x / 3 Pro</option>
+                        <option value="Qwen">Qwen 2.5 / Qwen3</option>
+                        <option value="DeepSeek">DeepSeek-R1</option>
+                        <option value="MiniMax">MiniMax</option>
+                    </optgroup>
+                    <optgroup label="Agentic AI">
+                        <option value="Claude Code">Claude Code</option>
+                        <option value="Cursor">Cursor / Windsurf</option>
+                        <option value="Cline">Cline</option>
+                        <option value="Bolt">Bolt / v0 / Lovable</option>
+                        <option value="Devin">Devin / SWE-agent</option>
+                    </optgroup>
+                    <optgroup label="Image AI">
+                        <option value="Midjourney">Midjourney</option>
+                        <option value="DALL-E">DALL-E 3</option>
+                        <option value="Stable Diffusion">Stable Diffusion</option>
+                        <option value="ComfyUI">ComfyUI</option>
+                    </optgroup>
+                    <optgroup label="Video AI">
+                        <option value="Sora">Sora / Runway</option>
+                        <option value="Kling">Kling / LTX Video</option>
+                    </optgroup>
+                    <optgroup label="Other">
+                        <option value="Other">Other / General</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="prompt-idea">Your Prompt Idea</label>
+                <textarea id="prompt-idea" placeholder="Describe what you want the AI to do. Be specific about the task, output format, and any constraints..."></textarea>
+            </div>
+
+            <button class="btn" id="generate-btn">Generate Prompt</button>
+
+            <div class="result" id="generate-result">
+                <div class="result-header">
+                    <div class="result-meta">
+                        🎯 Target: <span id="result-tool"></span> · 💡 <span id="result-strategy"></span>
+                    </div>
+                    <div class="result-actions">
+                        <button class="copy-btn" id="save-btn">Save</button>
+                        <button class="copy-btn" id="copy-btn">Copy</button>
+                    </div>
+                </div>
+                <div class="prompt-output" id="prompt-output"></div>
+            </div>
+        </div>
+
+        <!-- Update Panel -->
+        <div class="panel" id="update-panel">
+            <div class="form-group">
+                <label for="existing-prompt">Your Existing Prompt</label>
+                <textarea id="existing-prompt" placeholder="Paste the prompt you want to update or fix..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="update-tool">Target AI Tool</label>
+                <select id="update-tool">
+                    <option value="">Select a tool...</option>
+                    <optgroup label="Reasoning LLMs">
+                        <option value="Claude">Claude</option>
+                        <option value="ChatGPT">ChatGPT / GPT-5.x</option>
+                        <option value="o3">o3 / o4-mini</option>
+                        <option value="Gemini">Gemini 2.x / 3 Pro</option>
+                        <option value="Qwen">Qwen 2.5 / Qwen3</option>
+                        <option value="DeepSeek">DeepSeek-R1</option>
+                        <option value="MiniMax">MiniMax</option>
+                    </optgroup>
+                    <optgroup label="Agentic AI">
+                        <option value="Claude Code">Claude Code</option>
+                        <option value="Cursor">Cursor / Windsurf</option>
+                        <option value="Cline">Cline</option>
+                        <option value="Bolt">Bolt / v0 / Lovable</option>
+                        <option value="Devin">Devin / SWE-agent</option>
+                    </optgroup>
+                    <optgroup label="Image AI">
+                        <option value="Midjourney">Midjourney</option>
+                        <option value="DALL-E">DALL-E 3</option>
+                        <option value="Stable Diffusion">Stable Diffusion</option>
+                        <option value="ComfyUI">ComfyUI</option>
+                    </optgroup>
+                    <optgroup label="Video AI">
+                        <option value="Sora">Sora / Runway</option>
+                        <option value="Kling">Kling / LTX Video</option>
+                    </optgroup>
+                    <optgroup label="Other">
+                        <option value="Other">Other / General</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="improvement">What needs improvement?</label>
+                <select id="improvement">
+                    <option value="fix">Fix issues / Make it work better</option>
+                    <option value="adapt">Adapt for a different tool</option>
+                    <option value="simplify">Simplify / Tighten</option>
+                    <option value="breakdown">Break down into steps</option>
+                </select>
+            </div>
+
+            <button class="btn" id="update-btn">Update Prompt</button>
+
+            <div class="result" id="update-result">
+                <div class="result-header">
+                    <div class="result-meta">
+                        🎯 Target: <span id="update-result-tool"></span>
+                    </div>
+                    <button class="copy-btn" id="copy-update-btn">Copy Prompt</button>
+                </div>
+                <div class="prompt-output" id="update-output"></div>
+            </div>
+        </div>
+
+        <!-- Library Panel -->
+        <div class="panel" id="library-panel">
+            <div class="saved-prompts">
+                <h3>Saved Prompts</h3>
+                <div id="prompts-list">
+                    <div class="empty-state">No saved prompts yet. Generate one to get started!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tools = {
+            'Claude': {
+                strategy: 'Explicit XML structure, specify length, avoid padding',
+                template: `Role: [expert identity]
+Task: [precise action]
+Context: [relevant background]
+Output Format: [exact shape and length]
+Constraints: [must/must not]`
+            },
+            'ChatGPT': {
+                strategy: 'Compact instructions, output contract, verbosity control',
+                template: `Objective: [what to achieve]
+Style: [tone and approach]
+Format: [exact output structure]
+Constraints: [what to avoid]
+Done when: [success criteria]`
+            },
+            'o3': {
+                strategy: 'Short clean instructions, no CoT, zero-shot first',
+                template: `[Goal in one sentence]
+Output format: [exact shape]
+Constraints: [must not exceed / must include]`
+            },
+            'Claude Code': {
+                strategy: 'Start/target state, scope locks, stop conditions, checkpoints',
+                template: `Objective: [what needs to be built]
+Starting State: [current codebase state]
+Target State: [what exists when done]
+Scope: Work only in [files/dirs]
+Forbidden: [do not touch]
+Stop Conditions: Pause and ask before [destructive actions]
+Progress: After each step: ✅ [what was done]`
+            },
+            'Cursor': {
+                strategy: 'File path, function name, do-not-touch list, done criteria',
+                template: `File: [exact/path/to/file.ext]
+Function/Component: [name]
+Current Behavior: [what it does now]
+Desired Change: [what it should do]
+Scope: Only modify [section]
+Do NOT touch: [list]
+Done When: [exact condition]`
+            },
+            'Midjourney': {
+                strategy: 'Comma descriptors, subject first, style/mood/lighting, negative prompt',
+                template: `[subject], [action/pose], [setting], [style], [mood], [lighting], [composition], [color palette]
+--ar [aspect ratio] --v 6 --style raw
+negative: [what to exclude]`
+            },
+            'DALL-E': {
+                strategy: 'Prose description, foreground/midground/background, text exclusion',
+                template: `[Detailed scene description with foreground, midground, background]
+Do not include any text in the image unless specified.`
+            },
+            'Stable Diffusion': {
+                strategy: 'Weight syntax (word:1.3), CFG 7-12, mandatory negative prompt',
+                template: `([subject]:1.3), [style], [mood], [lighting], [composition]
+Negative: [exclusions], [quality issues], [artifacts]`
+            },
+            'Sora': {
+                strategy: 'Film directing language, camera movement critical',
+                template: `[Scene description]
+Camera: [movement type - static/dolly/crane]
+Shot: [close-up/wide/aerial]
+Duration: [seconds]
+Style: [aesthetic reference]`
+            }
+        };
+
+        let savedPrompts = JSON.parse(localStorage.getItem('promptMasterPrompts') || '[]');
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-panel`).classList.add('active');
+                if (tab.dataset.tab === 'library') renderSavedPrompts();
+            });
+        });
+
+        document.getElementById('generate-btn').addEventListener('click', generatePrompt);
+        document.getElementById('update-btn').addEventListener('click', updatePrompt);
+        document.getElementById('copy-btn').addEventListener('click', () => copyToClipboard('prompt-output'));
+        document.getElementById('save-btn').addEventListener('click', () => {
+            const tool = document.getElementById('target-tool').value;
+            const idea = document.getElementById('prompt-idea').value.trim();
+            const prompt = document.getElementById('prompt-output').textContent;
+            if (tool && idea && prompt) {
+                savePrompt(tool, idea, prompt);
+                renderSavedPrompts();
+                alert('Saved!');
+            }
+        });
+        document.getElementById('copy-update-btn').addEventListener('click', () => copyToClipboard('update-output'));
+
+        function generatePrompt() {
+            const tool = document.getElementById('target-tool').value;
+            const idea = document.getElementById('prompt-idea').value.trim();
+
+            if (!tool) {
+                alert('Please select a target AI tool');
+                return;
+            }
+            if (!idea) {
+                alert('Please describe your prompt idea');
+                return;
+            }
+
+            const toolData = tools[tool] || { strategy: 'Optimized for ' + tool, template: idea };
+            const prompt = toolData.template.replace(/\[([^\]]+)\]/g, (match, p1) => {
+                if (p1 === 'subject' || p1 === 'scene description') return idea;
+                if (p1 === 'goal in one sentence') return idea;
+                if (p1 === 'what to achieve') return idea;
+                if (p1 === 'precise action') return idea;
+                if (p1 === 'expert identity') return 'expert in the relevant domain';
+                return match;
+            });
+
+            document.getElementById('result-tool').textContent = tool;
+            document.getElementById('result-strategy').textContent = toolData.strategy;
+            document.getElementById('prompt-output').textContent = prompt;
+            document.getElementById('generate-result').classList.add('visible');
+        }
+
+        function updatePrompt() {
+            const existing = document.getElementById('existing-prompt').value.trim();
+            const tool = document.getElementById('update-tool').value;
+            const improvement = document.getElementById('improvement').value;
+
+            if (!existing) {
+                alert('Please paste an existing prompt');
+                return;
+            }
+            if (!tool) {
+                alert('Please select a target AI tool');
+                return;
+            }
+
+            let output = '';
+            if (improvement === 'fix') {
+                output = `Original prompt:\n${existing}\n\n---\n\nOptimized version:\n${existing}\n\n[Enhanced with better structure, explicit constraints, and clear success criteria]`;
+            } else if (improvement === 'adapt') {
+                output = `Original:\n${existing}\n\n---\n\nAdapted for ${tool}:\n[Rewritten using ${tool} best practices and syntax]`;
+            } else if (improvement === 'simplify') {
+                output = `Original:\n${existing}\n\n---\n\nSimplified:\n[Streamlined version with only load-bearing instructions]`;
+            } else if (improvement === 'breakdown') {
+                output = `Original prompt does multiple things. Split into sequential prompts:\n\nPrompt 1:\n[First task]\n\nPrompt 2:\n[Second task]\n\nRun in order.`;
+            }
+
+            document.getElementById('update-result-tool').textContent = tool;
+            document.getElementById('update-output').textContent = output;
+            document.getElementById('update-result').classList.add('visible');
+        }
+
+        function savePrompt(tool, idea, prompt) {
+            const entry = {
+                id: Date.now(),
+                tool,
+                idea,
+                prompt,
+                date: new Date().toLocaleDateString()
+            };
+            savedPrompts.unshift(entry);
+            if (savedPrompts.length > 50) savedPrompts.pop();
+            localStorage.setItem('promptMasterPrompts', JSON.stringify(savedPrompts));
+        }
+
+        function renderSavedPrompts() {
+            const list = document.getElementById('prompts-list');
+            if (savedPrompts.length === 0) {
+                list.innerHTML = '<div class="empty-state">No saved prompts yet. Generate one to get started!</div>';
+                return;
+            }
+            list.innerHTML = savedPrompts.map(p => `
+                <div class="prompt-card" data-id="${p.id}">
+                    <div class="prompt-card-header">
+                        <span class="prompt-card-tool">${p.tool}</span>
+                        <span class="prompt-card-date">${p.date}</span>
+                    </div>
+                    <div class="prompt-card-preview">${p.idea}</div>
+                    <div class="prompt-card-actions">
+                        <button onclick="loadPrompt(${p.id})">Load</button>
+                        <button onclick="deletePrompt(${p.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.loadPrompt = function(id) {
+            const prompt = savedPrompts.find(p => p.id === id);
+            if (prompt) {
+                document.querySelectorAll('.tab')[0].click();
+                document.getElementById('target-tool').value = prompt.tool;
+                document.getElementById('prompt-idea').value = prompt.idea;
+                document.getElementById('prompt-output').textContent = prompt.prompt;
+                document.getElementById('result-tool').textContent = prompt.tool;
+                document.getElementById('generate-result').classList.add('visible');
+            }
+        };
+
+        window.deletePrompt = function(id) {
+            savedPrompts = savedPrompts.filter(p => p.id !== id);
+            localStorage.setItem('promptMasterPrompts', JSON.stringify(savedPrompts));
+            renderSavedPrompts();
+        };
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector(`#${elementId}`).previousElementSibling.querySelector('.copy-btn');
+                const original = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = original, 2000);
+            });
+        }
+
+        renderSavedPrompts();
+    </script>
+</body>
+</html>

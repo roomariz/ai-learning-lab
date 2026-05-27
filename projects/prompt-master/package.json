@@ -1,0 +1,10 @@
+{
+  "name": "prompt-master",
+  "version": "1.0.0",
+  "description": "Generate optimized prompts for any AI tool",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve . -l 3000"
+  },
+  "private": true
+}
