@@ -73,3 +73,5 @@ output/
 outputs/
 tmp/
 temp/
+
+.vercel
