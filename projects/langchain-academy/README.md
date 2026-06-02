@@ -1,11 +1,10 @@
-![LangChain Academy](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba1020525eea7873f96_LCA-big-green%20(2).svg)
+# LangGraph
 
-## Introduction
+## Introduction to LangGraph
 
-Welcome to LangChain Academy, Introduction to LangGraph! 
-This is a growing set of modules focused on foundational concepts within the LangChain ecosystem. 
-Module 0 is basic setup and Modules 1 - 5 focus on building in LangGraph, progressively adding more advanced themes.  Module 6 addresses deploying your agents. 
-In each module folder, you'll see a set of notebooks. A link to the LangChain Academy lesson is at the top of each notebook to guide you through the topic. Each module also has a `studio` subdirectory, with a set of relevant graphs that we will explore using the LangGraph API and Studio.
+This repository contains a growing set of modules focused on foundational concepts within the LangChain ecosystem. Module 0 covers basic setup. Modules 1 to 5 focus on building with LangGraph, progressively adding more advanced themes. Module 6 addresses agent deployment.
+
+Each module folder contains notebooks. A link to the relevant LangChain Academy lesson appears at the top of each notebook. Modules also include a `studio` subdirectory containing graphs that can be explored with the LangGraph API and LangSmith Studio.
 
 ## Setup
 
