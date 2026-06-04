@@ -1,0 +1,15 @@
+[project]
+name = "03-long-term-memory-chatbot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "langchain>=0.3",
+    "langchain-cohere>=0.6.0",
+    "langchain-openai>=1.2.2",
+    "langgraph>=1.2.4",
+    "langgraph-checkpoint-sqlite>=3.1.0",
+    "python-dotenv>=1.2.2",
+    "streamlit>=1.58.0",
+]
